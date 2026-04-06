@@ -4,7 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Humana – Relatório de Funcionalidades</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" crossorigin="anonymous"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:15px;scroll-behavior:smooth}
@@ -528,9 +529,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   let pdfEmAndamento = false;
 
   function prepararCloneParaPdf(clonedDoc){
-    const root = clonedDoc.getElementById('relatorio');
+    var root = clonedDoc.querySelector('.pdf-chunk-root');
+    if(!root) root = clonedDoc.getElementById('relatorio');
     if(!root) return;
-    const coverName = root.querySelector('.cover-name');
+    var coverName = root.querySelector('.cover-name');
     if(coverName){
       coverName.style.background = 'none';
       coverName.style.webkitBackgroundClip = 'unset';
@@ -538,32 +540,122 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
       coverName.style.webkitTextFillColor = '#ffffff';
       coverName.style.color = '#ffffff';
     }
-    root.querySelectorAll('.sec, .ss, .cover, .metrics').forEach(function(el){
-      el.style.breakInside = 'avoid';
-      el.style.pageBreakInside = 'avoid';
-    });
   }
 
-  window.gerarPDF = function gerarPDF(){
+  function contarSsFilhoDireto(sec){
+    var n = 0;
+    var ch = sec.children;
+    var j;
+    for(j = 0; j < ch.length; j++){
+      if(ch[j].classList && ch[j].classList.contains('ss')) n++;
+    }
+    return n;
+  }
+
+  /** Partes pequenas para não estourar o limite de altura do canvas (~16k px). */
+  function montarPartes(rel){
+    var partes = [];
+    var cur = [];
+
+    function flushCur(){
+      if(cur.length){ partes.push(cur); cur = []; }
+    }
+
+    function empacotarTrechoSec(sec, nos){
+      var wrap = document.createElement('div');
+      wrap.className = sec.className;
+      var k;
+      for(k = 0; k < nos.length; k++){
+        wrap.appendChild(nos[k].cloneNode(true));
+      }
+      return wrap;
+    }
+
+    function partirSecComVariosSs(sec){
+      var bucket = [];
+      var ch = sec.children;
+      var c;
+      for(c = 0; c < ch.length; c++){
+        var node = ch[c];
+        bucket.push(node);
+        if(node.classList && node.classList.contains('ss')){
+          partes.push([empacotarTrechoSec(sec, bucket)]);
+          bucket = [];
+        }
+      }
+      if(bucket.length){
+        partes.push([empacotarTrechoSec(sec, bucket)]);
+      }
+    }
+
+    var filhos = rel.children;
+    var i;
+    for(i = 0; i < filhos.length; i++){
+      var child = filhos[i];
+      if(child.classList.contains('cover')){
+        flushCur();
+        partes.push([child]);
+        continue;
+      }
+      if(child.classList.contains('sec')){
+        var nSs = contarSsFilhoDireto(child);
+        if(nSs > 1){
+          flushCur();
+          partirSecComVariosSs(child);
+        } else {
+          cur.push(child);
+          if(nSs === 1) flushCur();
+        }
+        continue;
+      }
+      cur.push(child);
+    }
+    flushCur();
+    return partes;
+  }
+
+  function addCanvasAoPdf(pdf, canvas, marginMm){
+    var pageW = pdf.internal.pageSize.getWidth();
+    var pageH = pdf.internal.pageSize.getHeight();
+    var usableH = pageH - 2 * marginMm;
+    var imgW = pageW - 2 * marginMm;
+    var imgH = (canvas.height * imgW) / canvas.width;
+    var data = canvas.toDataURL('image/jpeg', 0.86);
+    var heightLeft = imgH;
+    var y = marginMm;
+
+    pdf.addImage(data, 'JPEG', marginMm, y, imgW, imgH);
+    heightLeft -= usableH;
+
+    while(heightLeft >= 0){
+      y = marginMm - (imgH - heightLeft);
+      pdf.addPage();
+      pdf.addImage(data, 'JPEG', marginMm, y, imgW, imgH);
+      heightLeft -= usableH;
+    }
+  }
+
+  window.gerarPDF = async function gerarPDF(){
     if(pdfEmAndamento) return;
 
-    const btn = document.getElementById('btn-pdf');
-    const topbar = document.querySelector('.topbar');
-    const el = document.getElementById('relatorio');
+    var btn = document.getElementById('btn-pdf');
+    var topbar = document.querySelector('.topbar');
+    var rel = document.getElementById('relatorio');
 
-    if(!btn || !el){
+    if(!btn || !rel){
       alert('Não foi possível localizar o conteúdo do relatório.');
       return;
     }
 
-    if(typeof html2pdf === 'undefined'){
-      alert('O gerador de PDF não carregou (rede ou bloqueador). Use Ctrl+P (Cmd+P) e escolha «Salvar como PDF».');
+    var JsPDF = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : window.jsPDF;
+    if(typeof html2canvas === 'undefined' || !JsPDF){
+      alert('Bibliotecas de PDF não carregaram (rede ou bloqueador). Use Ctrl+P (Cmd+P) e «Salvar como PDF».');
       window.print();
       return;
     }
 
     pdfEmAndamento = true;
-    const yScroll = window.scrollY;
+    var yScroll = window.scrollY;
     window.scrollTo(0, 0);
 
     btn.textContent = BTN_BUSY;
@@ -571,51 +663,65 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
     btn.setAttribute('aria-busy', 'true');
     if(topbar) topbar.style.display = 'none';
 
-    const scale = Math.min(2, Math.max(1.25, (window.devicePixelRatio || 1) * 1.15));
+    var marginMm = 10;
+    var scale = Math.min(1.35, Math.max(1, (window.devicePixelRatio || 1) > 1.5 ? 1.2 : 1.15));
+    var partes = montarPartes(rel);
+    var wraps = [];
 
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: 'Humana-Relatorio-Funcionalidades.pdf',
-      image: { type: 'jpeg', quality: 0.92 },
-      html2canvas: {
-        scale: scale,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        scrollX: 0,
-        scrollY: 0,
-        backgroundColor: '#f4f6f9',
-        onclone: prepararCloneParaPdf
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['.ss', '.cover', '.metrics'] }
-    };
+    try{
+      var pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+      var p;
+      for(p = 0; p < partes.length; p++){
+        var wrap = document.createElement('div');
+        wrap.className = 'pdf-chunk-root';
+        wrap.setAttribute('style',
+          'box-sizing:border-box;width:980px;max-width:980px;margin:0;padding:0;background:#f4f6f9;' +
+          'position:absolute;left:0;top:0;opacity:0.02;pointer-events:none;z-index:0;overflow:visible;');
+        var k;
+        for(k = 0; k < partes[p].length; k++){
+          wrap.appendChild(partes[p][k].cloneNode(true));
+        }
+        document.body.appendChild(wrap);
+        wraps.push(wrap);
 
-    function executar(){
-      html2pdf()
-        .set(opt)
-        .from(el)
-        .save()
-        .then(function(){
-          window.scrollTo(0, yScroll);
-        })
-        .catch(function(err){
-          console.error('gerarPDF:', err);
-          alert('Não foi possível gerar o PDF (memória ou rede). Tente fechar outras abas, recarregar a página, ou use Ctrl+P → Salvar como PDF.');
-          window.scrollTo(0, yScroll);
-        })
-        .finally(function(){
-          if(topbar) topbar.style.display = '';
-          btn.textContent = BTN_LABEL;
-          btn.disabled = false;
-          btn.removeAttribute('aria-busy');
-          pdfEmAndamento = false;
+        await document.fonts.ready.catch(function(){});
+        await new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(r); }); });
+
+        var canvas = await html2canvas(wrap, {
+          scale: scale,
+          useCORS: true,
+          allowTaint: false,
+          logging: false,
+          backgroundColor: '#f4f6f9',
+          scrollX: 0,
+          scrollY: 0,
+          onclone: prepararCloneParaPdf
         });
-    }
 
-    requestAnimationFrame(function(){
-      requestAnimationFrame(executar);
-    });
+        if(p > 0) pdf.addPage();
+        addCanvasAoPdf(pdf, canvas, marginMm);
+
+        document.body.removeChild(wrap);
+        wraps.pop();
+      }
+
+      pdf.save('Humana-Relatorio-Funcionalidades.pdf');
+      window.scrollTo(0, yScroll);
+    } catch(err){
+      console.error('gerarPDF:', err);
+      alert('Não foi possível gerar o PDF. Tente Ctrl+P → Salvar como PDF, ou recarregue a página e tente de novo.');
+      window.scrollTo(0, yScroll);
+      while(wraps.length){
+        var w = wraps.pop();
+        if(w && w.parentNode) w.parentNode.removeChild(w);
+      }
+    } finally{
+      if(topbar) topbar.style.display = '';
+      btn.textContent = BTN_LABEL;
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      pdfEmAndamento = false;
+    }
   };
 
   document.getElementById('btn-pdf').addEventListener('click', function(e){

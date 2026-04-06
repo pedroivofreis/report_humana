@@ -39,9 +39,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 .cover-tagline{font-size:16px;color:rgba(255,255,255,.55);margin-bottom:36px}
 .cover-title{font-size:28px;font-weight:800;margin-bottom:10px}
 .cover-desc{font-size:15.5px;color:rgba(255,255,255,.62);max-width:560px;margin-bottom:44px;line-height:1.65}
-.cover-stats{display:flex;gap:36px;flex-wrap:wrap}
+.cover-stats{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.cs-item{max-width:200px}
 .cs-num{font-size:36px;font-weight:900;color:#7dd3fc;display:block;line-height:1}
 .cs-lbl{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;display:block}
+.cs-desc{font-size:10.5px;color:rgba(255,255,255,.38);line-height:1.45;margin-top:8px;display:block;font-weight:400;letter-spacing:0;text-transform:none}
 .cover-footer{position:absolute;bottom:26px;right:36px;font-size:12px;color:rgba(255,255,255,.25);z-index:1}
 .sec{margin-bottom:60px;min-width:0}
 .sec-lbl{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
@@ -66,9 +68,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 .dtbl tr:last-child td{border-bottom:none}
 .dtbl tr:hover td{background:var(--g50)}
 .metrics{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
-.metric{flex:1;min-width:130px;border-radius:var(--rs);padding:18px;text-align:center;background:#fff;border:1px solid var(--g200);box-shadow:var(--sh)}
-.metric-val{font-size:28px;font-weight:900;display:block;margin-bottom:3px}
-.metric-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--g400)}
+.metric{flex:1;min-width:min(100%,200px);border-radius:var(--rs);padding:16px 14px 15px;text-align:left;background:#fff;border:1px solid var(--g200);box-shadow:var(--sh)}
+.metric-val{font-size:28px;font-weight:900;display:block;margin-bottom:2px;line-height:1}
+.metric-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--g400);display:block}
+.metric-desc{font-size:11px;font-weight:400;color:var(--g500);line-height:1.45;margin-top:10px;display:block;letter-spacing:0;text-transform:none}
 .mv-b .metric-val{color:var(--blue)}.mv-g .metric-val{color:var(--green)}.mv-o .metric-val{color:var(--orange)}.mv-t .metric-val{color:var(--teal)}.mv-p .metric-val{color:var(--purple)}
 .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:44px}
 .toc-card{background:#fff;border:1px solid var(--g200);border-radius:var(--rs);padding:14px 16px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;box-shadow:var(--sh);transition:box-shadow .2s,border-color .2s,transform .18s}
@@ -174,10 +177,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
     <div class="cover-title">Relatório Completo de Funcionalidades</div>
     <div class="cover-desc">Documento oficial com todas as funcionalidades entregues na plataforma, descrevendo cada módulo, tela, fluxo de trabalho e recurso disponível ao usuário.</div>
     <div class="cover-stats">
-      <div><span class="cs-num">16</span><span class="cs-lbl">Telas</span></div>
-      <div><span class="cs-num">65+</span><span class="cs-lbl">Funcionalidades</span></div>
-      <div><span class="cs-num">10</span><span class="cs-lbl">Módulos</span></div>
-      <div><span class="cs-num">25</span><span class="cs-lbl">APIs REST</span></div>
+      <div class="cs-item"><span class="cs-num">16</span><span class="cs-lbl">Telas</span><span class="cs-desc">Principais ecrãs da aplicação cobertos neste relatório.</span></div>
+      <div class="cs-item"><span class="cs-num">65+</span><span class="cs-lbl">Funcionalidades</span><span class="cs-desc">Recursos e ações mapeados (filtros, exportações, fluxos, integrações).</span></div>
+      <div class="cs-item"><span class="cs-num">10</span><span class="cs-lbl">Módulos</span><span class="cs-desc">Grandes blocos funcionais do produto (ex.: financeiro, operação, cadastros).</span></div>
+      <div class="cs-item"><span class="cs-num">25</span><span class="cs-lbl">APIs REST</span><span class="cs-desc">Rotas do backend que expõem dados e operações via HTTP (API).</span></div>
+      <div class="cs-item"><span class="cs-num">19</span><span class="cs-lbl">Migrações DB</span><span class="cs-desc">Versões de alteração do banco de dados (tabelas, colunas, índices), aplicadas em ordem.</span></div>
     </div>
   </div>
   <div class="cover-footer">Abril / 2026 · v1.0</div>
@@ -189,11 +193,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <div class="sec-title">O que a Humana entrega</div>
   <div class="sec-desc">A Humana é uma plataforma web completa que substitui planilhas e processos manuais, centralizando a gestão operacional e financeira de profissionais de saúde — do cadastro ao pagamento, em um único sistema integrado e acessível de qualquer dispositivo.</div>
   <div class="metrics">
-    <div class="metric mv-b"><span class="metric-val">16</span><span class="metric-lbl">Telas do sistema</span></div>
-    <div class="metric mv-g"><span class="metric-val">65+</span><span class="metric-lbl">Funcionalidades</span></div>
-    <div class="metric mv-o"><span class="metric-val">10</span><span class="metric-lbl">Módulos</span></div>
-    <div class="metric mv-t"><span class="metric-val">25</span><span class="metric-lbl">Endpoints API</span></div>
-    <div class="metric mv-p"><span class="metric-val">19</span><span class="metric-lbl">Migrações DB</span></div>
+    <div class="metric mv-b"><span class="metric-val">16</span><span class="metric-lbl">Telas do sistema</span><span class="metric-desc">Principais ecrãs da aplicação documentadas neste relatório.</span></div>
+    <div class="metric mv-g"><span class="metric-val">65+</span><span class="metric-lbl">Funcionalidades</span><span class="metric-desc">Recursos e comportamentos mapeados na plataforma (ações, filtros, exportações, etc.).</span></div>
+    <div class="metric mv-o"><span class="metric-val">10</span><span class="metric-lbl">Módulos</span><span class="metric-desc">Áreas funcionais principais — cada uma agrupa telas e regras de negócio relacionadas.</span></div>
+    <div class="metric mv-t"><span class="metric-val">25</span><span class="metric-lbl">Endpoints API</span><span class="metric-desc">Rotas REST do backend: cada uma corresponde a uma operação exposta pela API.</span></div>
+    <div class="metric mv-p"><span class="metric-val">19</span><span class="metric-lbl">Migrações DB</span><span class="metric-desc">Scripts versionados que alteram o banco de dados (tabelas, colunas, índices), aplicados em sequência pelo migrador do projeto (ex.: Alembic).</span></div>
   </div>
   <div class="toc-grid">
     <a class="toc-card" href="#s-login"><span style="font-size:22px">🔐</span><div><strong>Login</strong><span>Autenticação segura por CPF</span></div></a>

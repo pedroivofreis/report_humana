@@ -15,7 +15,7 @@ const replacements = [
   ['timesheet.png',    'Screenshot: Fechamento de Ponto'],
   ['import-batch.png', 'Screenshot: Status das Importações'],
   ['pending.png',      'Screenshot: Análise de Pendências'],
-  ['report-somatoria.png',  'Screenshot: Relatórios — Somatória'],
+  ['report.png',            'Screenshot: Relatórios — Somatória'],
   ['report-planejados.png', 'Screenshot: Relatórios — Plantões planejados'],
   ['report-financeiro.png', 'Screenshot: Relatórios — Financeiro'],
   ['wallet.png',       'Screenshot: Carteira de Profissionais'],

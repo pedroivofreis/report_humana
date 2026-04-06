@@ -43,12 +43,15 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 .cs-num{font-size:36px;font-weight:900;color:#7dd3fc;display:block;line-height:1}
 .cs-lbl{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;display:block}
 .cover-footer{position:absolute;bottom:26px;right:36px;font-size:12px;color:rgba(255,255,255,.25);z-index:1}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
 .sec{margin-bottom:60px;min-width:0}
 .sec-lbl{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
 .sec-lbl::before{content:'';width:18px;height:2px;background:var(--blue);border-radius:1px}
 .sec-title{font-size:27px;font-weight:800;color:var(--g800);letter-spacing:-.4px;margin-bottom:8px}
 .sec-desc{font-size:15px;color:var(--g600);max-width:740px;margin-bottom:24px;line-height:1.75}
 .ss{width:100%;max-width:100%;position:relative;border-radius:var(--r);overflow:hidden;box-shadow:0 0 0 1px var(--g200),var(--sh-lg);margin-bottom:24px;background:var(--g100);line-height:0;min-width:0}
+.ss.ss--embed{padding:0;background:transparent;border:none;box-shadow:none;border-radius:0;overflow:visible}
+.ss.ss--embed img{border-radius:var(--r);box-shadow:0 0 0 1px var(--g200),var(--sh-lg)}
 .ss img{position:relative;display:block;max-width:100%;width:100%;height:auto;vertical-align:top}
 .fcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
 .fc{background:#fff;border:1px solid var(--g200);border-radius:var(--rs);padding:15px 17px;display:flex;align-items:flex-start;gap:13px;box-shadow:var(--sh)}
@@ -247,9 +250,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <!-- FINANCEIRO -->
 <div class="sec" id="s-financeiro">
   <div class="sec-lbl">Financeiro</div>
-  <div class="sec-title">💰 Relatório Financeiro</div>
-  <div class="ss"><img src="screenshots/financial.png" alt="Financeiro"/></div>
-  <div class="sec-desc">Módulo de análise financeira detalhada que cruza plantões realizados com os valores de pagamento correspondentes. Apresenta visão completa por profissional, local e setor — diferenciando folha de pagamento de custos operacionais manuais. Permite lançar custos operacionais e <strong>excluir lançamentos individualmente</strong>, sempre com confirmação obrigatória, preservando integridade e histórico financeiro auditável.</div>
+  <h2 class="sr-only">Relatório Financeiro</h2>
+  <div class="ss ss--embed"><img src="screenshots/financial.png" alt="Relatório Financeiro: resumo do módulo e tabela por local, setor, tipo e status."/></div>
   <div class="fcg">
     <div class="fc"><div class="fi ib">📊</div><div><h4>Indicadores no topo</h4><p>Três cards fixos com: plantões planejados e valor total; quantidade e percentual dos liberados; quantidade e percentual dos pagos — atualizam conforme os filtros aplicados.</p></div></div>
     <div class="fc"><div class="fi it">🔍</div><div><h4>Filtros avançados</h4><p>Combinação de profissional (autocomplete), local hierárquico (instituição → setor), status (Todos / Liberado / Pago / Parcialmente pago) e competência.</p></div></div>
@@ -284,8 +286,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <div class="sec" id="s-plantoes">
   <div class="sec-lbl">Planejamento</div>
   <div class="sec-title">✅ Plantões Realizados</div>
-  <div class="ss"><img src="screenshots/completed.png" alt="Plantões Realizados"/></div>
   <div class="sec-desc">Registro completo e fonte de verdade de todos os plantões efetivamente cumpridos. Concentra o histórico real de execução de cada profissional em cada local e setor, com valores brutos, líquidos, saldo acumulado e status de pagamento. A exportação para Excel permite integração com sistemas contábeis externos e análises personalizadas fora da plataforma.</div>
+  <div class="ss"><img src="screenshots/completed.png" alt="Plantões realizados: indicadores e tabela por profissional."/></div>
   <div class="fcg">
     <div class="fc"><div class="fi ib">📊</div><div><h4>Cards de indicadores</h4><p>Totais de Planejados, Liberados (com %) e Pagos (com %) para o período filtrado — contexto imediato para o volume de dados exibido na tabela.</p></div></div>
     <div class="fc"><div class="fi ig">💵</div><div><h4>Valores brutos e líquidos</h4><p>Para cada plantão: valor bruto contratado e valor líquido após descontos aplicáveis — permitindo auditoria completa da composição dos valores pagos.</p></div></div>

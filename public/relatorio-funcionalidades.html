@@ -280,13 +280,13 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <div class="sec" id="s-financeiro">
   <div class="sec-lbl">Financeiro</div>
   <div class="sec-title">💰 Relatório Financeiro</div>
-  <div class="sec-desc">Módulo de análise financeira detalhada que cruza plantões realizados com os valores de pagamento correspondentes. Apresenta visão completa por profissional, local e setor — diferenciando folha de pagamento de custos operacionais manuais. Permite lançar custos operacionais e <strong>excluir lançamentos individualmente</strong>, sempre com confirmação obrigatória, preservando integridade e histórico financeiro auditável.</div>
+  <div class="sec-desc">Módulo de análise financeira detalhada que cruza plantões realizados com os valores de pagamento correspondentes. Apresenta visão completa por profissional, local e setor — diferenciando folha de pagamento de custos operacionais manuais. Permite lançar custos operacionais e <strong>excluir custos operacionais individualmente</strong>, sempre com confirmação obrigatória, preservando integridade e histórico financeiro auditável.</div>
   <div class="ss"><img src="screenshots/financial.png" alt="Tela do Relatório Financeiro no sistema: indicadores, filtros e tabela."/></div>
   <div class="fcg">
     <div class="fc"><div class="fi ib">📊</div><div><h4>Indicadores no topo</h4><p>Três cards fixos com: plantões planejados e valor total; quantidade e percentual dos liberados; quantidade e percentual dos pagos — atualizam conforme os filtros aplicados.</p></div></div>
     <div class="fc"><div class="fi it">🔍</div><div><h4>Filtros avançados</h4><p>Combinação de profissional (autocomplete), local hierárquico (instituição → setor), status (Todos / Liberado / Pago / Parcialmente pago) e competência.</p></div></div>
     <div class="fc"><div class="fi ig">✏️</div><div><h4>Lançamento de custo operacional</h4><p>Modal "Lançar Pagamento" para registrar despesas avulsas: beneficiário (profissional cadastrado ou nome externo), valor em R$, data, local e descrição livre.</p></div></div>
-    <div class="fc"><div class="fi" style="background:#ffeee8;color:#5c4033">🗑️</div><div><h4>Exclusão de lançamentos</h4><p>Cada custo operacional pode ser excluído individualmente com confirmação obrigatória — mantendo a integridade e o histórico financeiro auditável.</p></div></div>
+    <div class="fc"><div class="fi" style="background:#ffeee8;color:#5c4033">🗑️</div><div><h4>Exclusão de Custos Operacionais</h4><p>Cada custo operacional pode ser excluído individualmente com confirmação obrigatória — mantendo a integridade e o histórico financeiro auditável.</p></div></div>
     <div class="fc"><div class="fi ip">👁️</div><div><h4>Detalhes de custos operacionais</h4><p>Modal dedicado para visualizar todos os campos de cada custo lançado: data, valor, responsável pelo lançamento e justificativa.</p></div></div>
     <div class="fc"><div class="fi io">🏷️</div><div><h4>Separação contábil por tipo</h4><p>Chips distintos para <strong>Custo operacional</strong> e <strong>Folha de ponto</strong> em cada linha, facilitando a separação contábil e a conciliação com o sistema de gestão financeira.</p></div></div>
   </div>
@@ -298,14 +298,14 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <div class="sec" id="s-planejado">
   <div class="sec-lbl">Planejamento</div>
   <div class="sec-title">📅 Planejado</div>
-  <div class="sec-desc">Módulo de controle que compara plantões previstos com os realizados, identificando divergências e pendências que precisam de ação. Funciona como o radar operacional da gestão: mostra em tempo real onde a execução está alinhada com o planejamento e onde há gaps que precisam de atenção. Suporta importação de relatório financeiro externo via arquivo para alimentar o planejamento de forma automatizada.</div>
+  <div class="sec-desc">Módulo de controle que compara plantões previstos com os realizados, identificando divergências e pendências que precisam de ação. Funciona como o radar operacional da gestão: mostra em tempo real onde a execução está alinhada com o planejamento e onde há gaps que precisam de atenção. Suporta importação do <strong>relatório financeiro exportado do Pega Plantão</strong> (Excel/CSV) para alimentar o planejamento de forma automatizada.</div>
   <div class="ss"><img src="screenshots/planning.png" alt="Planejado"/></div>
   <div class="fcg">
     <div class="fc"><div class="fi io">📋</div><div><h4>Planejado — baseline</h4><p>Total de plantões e valor financeiro previstos para o período. Referência central para todos os demais indicadores do módulo.</p></div></div>
     <div class="fc"><div class="fi ib">✅</div><div><h4>Realizado — execução confirmada</h4><p>Quantidade de plantões confirmados e percentual de aderência ao planejamento. Reflete diretamente a eficiência da escala no período.</p></div></div>
     <div class="fc"><div class="fi io">🔔</div><div><h4>Pendentes — aguardando ação</h4><p>Plantões planejados que ainda não foram confirmados como realizados nem marcados como cancelados. Cada item requer resolução pela equipe.</p></div></div>
     <div class="fc"><div class="fi ir">⚡</div><div><h4>Divergências — inconsistências</h4><p>Contradições entre planejamento e dados de fechamento importados. Cada divergência é listada individualmente para resolução manual pelo gestor.</p></div></div>
-    <div class="fc"><div class="fi it">📤</div><div><h4>Importação de relatório</h4><p>Upload de arquivo financeiro externo <strong>(Excel/CSV do Pega Plantão)</strong> que é processado automaticamente e cruzado com o planejamento — alimentando os dados sem digitação manual.</p></div></div>
+    <div class="fc"><div class="fi it">📤</div><div><h4>Importação de relatório do Pega Plantão</h4><p>O upload utiliza o <strong>arquivo financeiro exportado do Pega Plantão</strong> (Excel ou CSV): o sistema processa automaticamente, cruza com o planejamento e alimenta os dados <strong>sem digitação manual</strong> — é o formato nativo esperado dessa integração.</p></div></div>
     <div class="fc"><div class="fi iz">👁️</div><div><h4>Detalhamento por linha</h4><p>Expansão de cada registro para visualizar: CRM, local, setor, valor a pagar, competência e status atual — sem precisar sair da tela.</p></div></div>
   </div>
 </div>
@@ -360,7 +360,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <div class="sec-desc">Tela dedicada ao monitoramento de todas as importações de arquivos de ponto, com histórico completo e status detalhado de cada operação. Permite acompanhar o processamento de importações grandes, identificar arquivos com erro e obter a mensagem de causa para diagnóstico e reenvio.</div>
   <div class="ss"><img src="screenshots/import-batch.png" alt="Status das Importações"/></div>
   <div class="fcg">
-    <div class="fc"><div class="fi ib">📋</div><div><h4>Histórico completo</h4><p>Listagem de todas as importações — inclusive as que ainda não foram processadas — com data/hora, nome do arquivo e status, ordenadas da mais recente para a mais antiga para facilitar o acompanhamento imediato.</p></div></div>
+    <div class="fc"><div class="fi ib">📋</div><div><h4>Histórico completo</h4><p>Todas as importações aparecem na lista — <strong>incluindo as que ainda não foram processadas</strong> — sempre com <strong>data e hora</strong> do envio, nome do arquivo e status, da mais recente para a mais antiga, para acompanhar fila e erros em tempo real.</p></div></div>
     <div class="fc"><div class="fi io">⏳</div><div><h4>Em processamento</h4><p>Indica importações que ainda não foram processadas, acompanhadas da data e hora do envio.</p></div></div>
     <div class="fc"><div class="fi ir">❌</div><div><h4>Diagnóstico de erros</h4><p>Arquivos com falha exibem o tipo de erro (processamento, leitura de dados etc.) e mensagem explicativa para orientar a correção e o reenvio do arquivo.</p></div></div>
     <div class="fc"><div class="fi ip">🔍</div><div><h4>Validar detalhes</h4><p>Botão em cada linha para acessar os detalhes completos da importação: dados extraídos, campos com erro e observações do sistema de processamento.</p></div></div>
@@ -391,14 +391,25 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <div class="sec" id="s-relatorios">
   <div class="sec-lbl">Análise</div>
   <div class="sec-title">📈 Relatórios</div>
-  <div class="sec-desc">Hub centralizado com três visões gerenciais distintas, filtráveis por competência e localidade. O gestor alterna entre perspectivas dos dados — somatória operacional, plantões planejados ou resumo financeiro — sem precisar mudar de módulo, usando abas para navegação fluida e imediata.</div>
-  <div class="ss"><img src="screenshots/report.png" alt="Relatórios"/></div>
+  <div class="sec-desc">Um único módulo com o seletor <strong>Tipo de relatório</strong>: três saídas oficiais para a mesma competência — somatória agregada, grade de plantões planejados e fechamento financeiro com impostos e custos. Competência, filtros de local (e busca por nome onde aplicável) e <strong>Baixar Excel</strong> acompanham cada visão.</div>
+
+  <div class="sub-title">➕ Somatória de Plantões</div>
+  <div class="sub-desc">Totalizador consolidado, agrupando os plantões <strong>por local e setor</strong> — visão agregada do volume e dos valores por unidade, pensada para reuniões de gestão e leitura executiva do período.</div>
+  <div class="ss"><img src="screenshots/report-somatoria.png" alt="Relatórios: Somatória de Plantões — visão agregada por local e setor."/></div>
+
+  <div class="sub-title">📅 Plantões planejados</div>
+  <div class="sub-desc">Lista linha a linha dos plantões previstos, com <strong>local, setor, horas, valor bruto, valor líquido, saldo e data</strong>. Filtros por competência, <strong>tipo de relatório</strong>, local e busca por nome; tabela com paginação e linha <strong>Totais gerais</strong> (horas e valores). Botão <strong>Baixar Excel</strong> para exportar o recorte filtrado.</div>
+  <div class="ss"><img src="screenshots/report-planejados.png" alt="Relatórios: Plantões planejados — tabela com totais e exportação Excel."/></div>
+
+  <div class="sub-title">💰 Relatório financeiro</div>
+  <div class="sub-desc">Painel de <strong>detalhamento de serviços</strong> por local e setor: valor unitário, quantidade, <strong>faturado</strong>, <strong>imposto</strong>, <strong>custo</strong> e <strong>resultado</strong> por linha, com totais gerais. Abaixo, blocos de <strong>Custos administrativos</strong> e <strong>Fechamento geral</strong> (faturado, custo operacional, impostos, administrativo e <strong>resultado final</strong>). Mesmos filtros de competência e local e exportação Excel.</div>
+  <div class="ss"><img src="screenshots/report-financeiro.png" alt="Relatórios: Relatório financeiro — detalhamento de serviços e fechamento geral."/></div>
+
   <div class="fcg">
-    <div class="fc"><div class="fi ib">➕</div><div><h4>Somatória de Plantões</h4><p>Totalizador consolidado agrupando todos os plantões por profissional, local e setor. Relatório operacional ideal para reuniões de gestão e apresentações executivas.</p></div></div>
-    <div class="fc"><div class="fi io">📅</div><div><h4>Plantões Planejados</h4><p>Lista completa dos plantões previstos com profissional, local, setor, data e valor — visão integral da escala do período para análise e validação.</p></div></div>
-    <div class="fc"><div class="fi ig">💰</div><div><h4>Relatório Financeiro resumido</h4><p>Consolidado por profissional com valores totais, tipo de contrato e status — visão rápida do financeiro para reuniões sem precisar abrir o módulo completo.</p></div></div>
-    <div class="fc"><div class="fi it">🏥</div><div><h4>Filtro por localidade</h4><p>Hierarquia instituição → setor que atualiza o relatório em tempo real. Segmenta os dados para a unidade desejada sem precisar recarregar a página.</p></div></div>
-    <div class="fc"><div class="fi iz">📅</div><div><h4>Competência única para todos</h4><p>Selecione o período uma vez e navegue entre as três abas vendo as diferentes perspectivas do mesmo mês — sem precisar repetir o filtro.</p></div></div>
+    <div class="fc"><div class="fi ip">📑</div><div><h4>Três tipos no mesmo lugar</h4><p>O menu <strong>Tipo de relatório</strong> alterna entre Somatória de Plantões, Plantões planejados e Relatório financeiro — sem sair da tela.</p></div></div>
+    <div class="fc"><div class="fi iz">📅</div><div><h4>Competência única</h4><p>O período (mês/ano) vale para os três relatórios; troque o tipo e mantenha o mesmo recorte temporal.</p></div></div>
+    <div class="fc"><div class="fi it">🏥</div><div><h4>Filtro por local</h4><p>Seleção de instituição e setores para restringir o conjunto exibido e exportado.</p></div></div>
+    <div class="fc"><div class="fi ib">📥</div><div><h4>Baixar Excel</h4><p>Exportação do relatório visível no momento, respeitando competência e filtros aplicados.</p></div></div>
   </div>
 </div>
 

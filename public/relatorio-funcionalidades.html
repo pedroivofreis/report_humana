@@ -22,8 +22,9 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   --sh:0 1px 3px rgba(0,0,0,.08);--sh-md:0 4px 16px rgba(0,0,0,.09);--sh-lg:0 8px 32px rgba(0,0,0,.12);
 }
 .topbar{position:sticky;top:0;z-index:999;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;padding:12px 40px;gap:16px}
-.topbar-logo{font-size:20px;font-weight:900;color:var(--blue-d);letter-spacing:-.5px;flex-shrink:0}
-.topbar-logo span{color:var(--teal)}
+.topbar-logo{display:flex;align-items:center;flex-shrink:0;line-height:0;text-decoration:none;outline-offset:4px;border-radius:8px}
+.topbar-logo:focus-visible{outline:2px solid var(--blue)}
+.topbar-logo img{display:block;height:40px;width:auto;max-width:min(130px,32vw)}
 .topbar-nav{display:flex;gap:2px;flex-wrap:wrap;flex:1;justify-content:center}
 .topbar-nav a{font-size:12px;color:var(--g600);text-decoration:none;padding:5px 10px;border-radius:6px;font-weight:500;transition:background .15s,color .15s;white-space:nowrap}
 .topbar-nav a:hover{background:var(--blue-l);color:var(--blue-d)}
@@ -95,6 +96,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 .extra-why{display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#f5f3ff,#eff6ff);border:1px solid #e9d5ff;border-radius:var(--rs);padding:14px 16px;margin-bottom:18px;font-size:13.5px;color:var(--g700);line-height:1.6}
 .extra-why .ew-ico{flex-shrink:0;width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px}
 .extra-why strong{color:#5b21b6}
+.extra-why .ew-body{flex:1;min-width:0}
+.extra-why .ew-body p{margin:0 0 0.85em;line-height:1.65}
+.extra-why .ew-body p:last-child{margin-bottom:0}
+.extra-why .ew-kicker{display:block;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#6d28d9;margin-bottom:8px}
 .toc-card-extras{border-color:#d8b4fe!important;background:linear-gradient(135deg,#faf5ff,#fff)!important;box-shadow:0 2px 14px rgba(124,58,237,.1)!important}
 .toc-card-extras:hover{border-color:#7c3aed!important;box-shadow:0 6px 22px rgba(124,58,237,.15)!important}
 .toc-card-extras strong{color:#5b21b6!important}
@@ -111,7 +116,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 @media (max-width:768px){
   html{font-size:14px}
   .topbar{flex-direction:row;justify-content:space-between;align-items:center;padding:max(10px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));gap:12px}
-  .topbar-logo{text-align:left;font-size:18px;flex:1;min-width:0}
+  .topbar-logo{flex:1;min-width:0}
+  .topbar-logo img{height:34px;max-width:min(118px,40vw)}
   .topbar-nav{display:none!important}
   .btn-pdf{width:auto;flex-shrink:0;padding:10px 14px;font-size:12.5px}
   #relatorio{padding:18px max(12px,env(safe-area-inset-left,0px)) max(48px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-right,0px))}
@@ -167,7 +173,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <body>
 
 <header class="topbar">
-  <div class="topbar-logo">Hum<span>ana</span></div>
+  <a class="topbar-logo" href="#relatorio" aria-label="Humana — início do relatório"><img src="logo-humana.svg" alt="Humana" width="99" height="80" decoding="async"/></a>
   <nav class="topbar-nav">
     <a href="#s-login">Login</a>
     <a href="#s-indicadores">Indicadores</a>
@@ -554,7 +560,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 
   <div class="extra-card">
     <div class="sub-title">🔍 Comparador Pega Plantão × Humana</div>
-    <div class="extra-why"><span class="ew-ico" aria-hidden="true">⚡</span><div><strong>Por que existe.</strong> Na operação real apareciam <strong>divergências recorrentes</strong> — por exemplo após <strong>troca de setores</strong>, por <strong>diferenças de valores conforme o tipo de plantão</strong> e outros desalinhamentos entre o legado e a Humana. Para não depender de conferência manual interminável, foi construída esta <strong>ferramenta de validação</strong>: você envia o export do <strong>Pega Plantão</strong> e o arquivo da <strong>Humana</strong>, executa a comparação e o sistema <strong>aponta as divergências</strong> de forma objetiva.</div></div>
+    <div class="extra-why"><span class="ew-ico" aria-hidden="true">⚡</span><div class="ew-body"><span class="ew-kicker">Por que existe</span><p>Na operação real, eram frequentes <strong>divergências entre os dados</strong> — inclusive após o <strong>fechamento mensal</strong>. Essas inconsistências estavam relacionadas a fatores como setores, tipos de plantão e outros desalinhamentos entre o sistema legado e a Humana.</p><p>Para eliminar a dependência de conferências manuais longas e suscetíveis a erro, foi desenvolvida esta <strong>ferramenta de validação</strong>. Com ela, basta enviar o export do Pega Plantão e o arquivo da Humana para que o sistema realize a comparação automaticamente, destacando de forma clara e objetiva todas as <strong>divergências encontradas</strong>.</p></div></div>
     <div class="sub-desc">Interface em duas colunas: à esquerda, o <strong>Pega Plantão</strong> (sistema anterior — planilhas exportadas <strong>agrupadas por médico</strong>); à direita, a <strong>Humana</strong> (relatório de lucro com <strong>uma linha por plantão</strong>). Basta carregar cada ficheiro no campo certo e usar <strong>Comparar</strong>. Há ainda o separador <strong>Histórico</strong> para consultar comparações anteriores. Formatos: até 200&nbsp;MB por ficheiro — <strong>XLSX e XLS</strong> nos dois lados; <strong>CSV</strong> também aceite no lado Humana.</div>
     <div class="ss"><img src="screenshots/extra-comparador-pega-plantao-humana.png" alt="Comparador Pega Plantão × Humana: separadores Comparação e Histórico, upload do arquivo legado agrupado por médico e do relatório Humana linha a linha, com botões Comparar."/></div>
     <div class="fcg">

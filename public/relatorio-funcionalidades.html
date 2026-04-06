@@ -150,10 +150,12 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
     <a href="#s-pagamentos">Pagamentos</a>
     <a href="#s-financeiro">Financeiro</a>
     <a href="#s-planejado">Planejado</a>
+    <a href="#s-plantoes">Plantões</a>
     <a href="#s-fechamento">Fechamento</a>
+    <a href="#s-importacao">Importações</a>
     <a href="#s-pendencias">Pendências</a>
+    <a href="#s-relatorios">Relatórios</a>
     <a href="#s-carteira">Carteira</a>
-    <a href="#s-profissionais">Profissionais</a>
     <a href="#s-locais">Locais</a>
     <a href="#s-usuarios">Usuários</a>
     <a href="#s-perfil">Perfil</a>
@@ -201,10 +203,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
     <a class="toc-card" href="#s-planejado"><span style="font-size:22px">📅</span><div><strong>Planejado</strong><span>Plantões previstos vs. realizados</span></div></a>
     <a class="toc-card" href="#s-plantoes"><span style="font-size:22px">✅</span><div><strong>Plantões Realizados</strong><span>Registros confirmados + exportação XLSX</span></div></a>
     <a class="toc-card" href="#s-fechamento"><span style="font-size:22px">🕐</span><div><strong>Fechamento de Ponto</strong><span>Importação e fechamento mensal</span></div></a>
+    <a class="toc-card" href="#s-importacao"><span style="font-size:22px">📥</span><div><strong>Status das importações</strong><span>Histórico e monitoramento</span></div></a>
     <a class="toc-card" href="#s-pendencias"><span style="font-size:22px">⚠️</span><div><strong>Pendências</strong><span>Análise por instituição e setor</span></div></a>
     <a class="toc-card" href="#s-relatorios"><span style="font-size:22px">📈</span><div><strong>Relatórios</strong><span>Somatórias e visões gerenciais</span></div></a>
     <a class="toc-card" href="#s-carteira"><span style="font-size:22px">👛</span><div><strong>Carteira</strong><span>Saldo e histórico por profissional</span></div></a>
-    <a class="toc-card" href="#s-profissionais"><span style="font-size:22px">👨‍⚕️</span><div><strong>Profissionais</strong><span>Cadastro e gestão completa</span></div></a>
     <a class="toc-card" href="#s-locais"><span style="font-size:22px">🏥</span><div><strong>Locais e Setores</strong><span>Gestão de instituições</span></div></a>
     <a class="toc-card" href="#s-usuarios"><span style="font-size:22px">👥</span><div><strong>Usuários</strong><span>Controle de acesso da equipe</span></div></a>
     <a class="toc-card" href="#s-perfil"><span style="font-size:22px">👤</span><div><strong>Meu Perfil</strong><span>Dados pessoais e segurança</span></div></a>
@@ -433,61 +435,6 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 
 <div class="divider"></div>
 
-<!-- PROFISSIONAIS -->
-<div class="sec" id="s-profissionais">
-  <div class="sec-lbl">Cadastro</div>
-  <div class="sec-title">👨‍⚕️ Gestão de Profissionais</div>
-  <div class="sec-desc">Módulo central de cadastro e gestão do ciclo de vida completo dos profissionais de saúde. Cobre desde o registro inicial com dados básicos até informações pessoais detalhadas, dados complementares exigidos pelo eSocial, endereço com autopreenchimento por CEP, dados bancários e Pix, registro profissional (CRM), especialidades médicas e documentos digitalizados — tudo organizado em abas intuitivas para facilitar a navegação e edição.</div>
-  <div class="ss"><img src="screenshots/professionals.png" alt="Profissionais"/></div>
-  <div class="fcg">
-    <div class="fc"><div class="fi ib">🔍</div><div><h4>Busca em tempo real</h4><p>Campo de pesquisa por nome com resultado imediato e filtro de status (Todos / Pendente / Ativo). Paginação configurável: 5, 10, 20 ou 50 itens por página com indicador de posição.</p></div></div>
-    <div class="fc"><div class="fi ig">➕</div><div><h4>Criar profissional</h4><p>Modal de cadastro rápido com nome completo, CPF (máscara + validação), celular e e-mail. Após criar, o perfil completo é preenchido na tela de detalhes por abas.</p></div></div>
-    <div class="fc"><div class="fi io">🏷️</div><div><h4>Funções visíveis na lista</h4><p>Chips coloridos com os papéis (roles) de cada profissional diretamente na listagem — sem precisar abrir o detalhe para saber o perfil de acesso.</p></div></div>
-    <div class="fc"><div class="fi it">📋</div><div><h4>Status de cadastro</h4><p>Indicação visual do estágio do cadastro: Ativo (verde) ou Pendente (laranja) — identifica imediatamente quem ainda precisa completar informações obrigatórias.</p></div></div>
-  </div>
-
-  <div class="sub-title">📋 Dados Pessoais</div>
-  <div class="sub-desc">Perfil completo em cinco abas — cada uma cobre uma categoria de informação com validações específicas e modo de edição independente.</div>
-  <div class="ss"><img src="screenshots/personal-data.png" alt="Dados Pessoais"/></div>
-  <div class="table-scroll">
-  <table class="dtbl">
-    <thead><tr><th>Aba</th><th>O que é gerenciado</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Dados Pessoais</strong></td><td>Nome completo, e-mail, telefone (máscara + validação 10-11 dígitos), CPF, senha de acesso e data de nascimento com validações em tempo real.</td></tr>
-      <tr><td><strong>Dados Complementares</strong></td><td>Estado civil, naturalidade, nacionalidade, nome da mãe e do pai, deficiência (tipo e grau), gênero, sexo e raça/cor — campos exigidos pelo eSocial e formulários hospitalares.</td></tr>
-      <tr><td><strong>Endereço</strong></td><td>CEP com autopreenchimento automático via API (preenche logradouro, bairro, cidade e UF), número, complemento e estado — reduz erros e tempo de cadastro.</td></tr>
-      <tr><td><strong>Contas Bancárias</strong></td><td>Tipo (corrente/poupança), número, dígito verificador, agência, banco e código bancário. Múltiplas contas com flag de conta principal. CRUD completo com confirmação de exclusão.</td></tr>
-      <tr><td><strong>Chaves Pix</strong></td><td>Todos os tipos: CPF, e-mail, telefone, chave DICT e aleatória. Flags de chave ativa e principal. CRUD completo — cadastre, edite e remova chaves sem limitação de quantidade.</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <div class="sub-title">🩺 Informações Profissionais</div>
-  <div class="sub-desc">Gestão das credenciais e especialidades do profissional de saúde.</div>
-  <div class="ss"><img src="screenshots/prof-info.png" alt="Info Profissional"/></div>
-  <div class="fcg">
-    <div class="fc"><div class="fi ib">🏥</div><div><h4>Especialidades (CBO)</h4><p>Cadastro de profissão e especialidade baseado na Classificação Brasileira de Ocupações, com flag de especialidade principal. CRUD completo com validação de duplicidade.</p></div></div>
-    <div class="fc"><div class="fi io">📃</div><div><h4>Registro profissional (CRM)</h4><p>Número do CRM, estado de registro (UF) e data de emissão. Suporta múltiplos CRMs por profissional (registros em diferentes estados) com upload de documento comprobatório.</p></div></div>
-    <div class="fc"><div class="fi it">📎</div><div><h4>Documentos vinculados ao CRM</h4><p>Upload de arquivo diretamente vinculado ao registro profissional — armazenado em AWS S3 com acesso seguro e visualização integrada sem download.</p></div></div>
-  </div>
-
-  <div class="sub-title">📎 Documentos e Anexos</div>
-  <div class="sub-desc">Gestão de todos os documentos pessoais do profissional com upload, visualização em modal e exclusão segura.</div>
-  <div class="ss"><img src="screenshots/attachments.png" alt="Anexos"/></div>
-  <div class="fcg">
-    <div class="fc"><div class="fi ib">📄</div><div><h4>RG</h4><p>Documento de identidade com número, órgão emissor e arquivo anexo digitalizado.</p></div></div>
-    <div class="fc"><div class="fi it">🚗</div><div><h4>CNH</h4><p>Carteira nacional de habilitação com número e arquivo em PDF ou imagem.</p></div></div>
-    <div class="fc"><div class="fi io">🩺</div><div><h4>CRM</h4><p>Certificado de registro no Conselho Regional de Medicina com documento comprobatório.</p></div></div>
-    <div class="fc"><div class="fi ig">🏥</div><div><h4>CNS / SUS</h4><p>Cartão Nacional de Saúde para vínculo com sistemas e prontuários do SUS.</p></div></div>
-    <div class="fc"><div class="fi ip">💉</div><div><h4>Carteira de Vacinação</h4><p>Comprovante de imunização aceito em qualquer formato de arquivo digital.</p></div></div>
-    <div class="fc"><div class="fi iz">🏠</div><div><h4>Comprovante de Residência</h4><p>Documento de endereço atual em qualquer formato digital — sem campo de código.</p></div></div>
-    <div class="fc"><div class="fi ib">👁️</div><div><h4>Visualizar sem download</h4><p>Modal de preview do documento diretamente na plataforma — o usuário vê o arquivo sem precisar baixá-lo, agilizando a conferência.</p></div></div>
-    <div class="fc"><div class="fi ir">🗑️</div><div><h4>Exclusão segura</h4><p>Remoção com confirmação obrigatória em diálogo modal — protege contra exclusões acidentais de documentos importantes e irreversíveis.</p></div></div>
-  </div>
-</div>
-
-<div class="divider"></div>
-
 <!-- LOCAIS -->
 <div class="sec" id="s-locais">
   <div class="sec-lbl">Configuração</div>
@@ -507,7 +454,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <div class="sec" id="s-usuarios">
   <div class="sec-lbl">Configuração</div>
   <div class="sec-title">👥 Gestão de Usuários</div>
-  <div class="sec-desc">Módulo para gerenciar a equipe que opera a plataforma Humana. Diferente dos profissionais de saúde (gerenciados no módulo "Profissionais"), os usuários são gestores, coordenadores e equipe financeira que utilizam o sistema no dia a dia. Permite criar novos acessos, definir credenciais e controlar o status ativo/inativo de cada membro da equipe.</div>
+  <div class="sec-desc">Módulo para gerenciar a equipe que opera a plataforma Humana. Diferente dos profissionais de saúde da operação (quem presta serviço nas unidades), os usuários são gestores, coordenadores e equipe financeira que utilizam o sistema no dia a dia. Permite criar novos acessos, definir credenciais e controlar o status ativo/inativo de cada membro da equipe.</div>
   <div class="ss"><img src="screenshots/user.png" alt="Usuários"/></div>
   <div class="fcg">
     <div class="fc"><div class="fi ib">🔍</div><div><h4>Busca multicritério</h4><p>Pesquisa simultânea por nome, e-mail ou CRM em um único campo — localiza qualquer usuário independentemente da informação disponível.</p></div></div>

@@ -5,6 +5,11 @@ const REALM = 'Humana';
 const EXPECTED_PASSWORD = process.env.RELATORIO_PASSWORD ?? 'Humana';
 
 export function middleware(request: NextRequest) {
+  // Em `next dev` o relatório abre direto; em produção (Vercel) a senha continua obrigatória.
+  if (process.env.NODE_ENV === 'development') {
+    return NextResponse.next();
+  }
+
   const auth = request.headers.get('authorization');
   if (auth?.startsWith('Basic ')) {
     try {

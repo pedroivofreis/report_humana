@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <title>Humana – Relatório de Funcionalidades</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" crossorigin="anonymous"></script>
@@ -81,6 +81,54 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 .col-box{background:#fff;border:1px solid var(--g200);border-radius:var(--rs);padding:14px 18px;box-shadow:var(--sh);margin-bottom:14px}
 .col-box p{font-size:13.5px;color:var(--g700)}
 .col-box .col-lbl{font-size:11.5px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:18px}
+.table-scroll .dtbl{margin-bottom:0}
+.end-footer{margin-top:72px;background:#0f172a;border-radius:16px;padding:36px;text-align:center;color:rgba(255,255,255,.5)}
+.end-footer .ef-brand{font-size:24px;font-weight:900;color:#fff;margin-bottom:5px;letter-spacing:-1px}
+.end-footer .ef-tag{font-size:14px;margin-bottom:4px}
+.end-footer .ef-meta{font-size:12px;color:rgba(255,255,255,.25);margin-top:8px}
+@media (max-width:768px){
+  html{font-size:14px}
+  .topbar{flex-direction:column;align-items:stretch;padding:max(10px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));gap:10px}
+  .topbar-logo{text-align:center;font-size:18px}
+  .topbar-nav{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;gap:2px;padding:4px 0 8px;scrollbar-width:thin}
+  .topbar-nav a{padding:8px 11px;font-size:12.5px;flex-shrink:0}
+  .btn-pdf{width:100%;justify-content:center;padding:12px 16px;font-size:13px}
+  #relatorio{padding:18px max(12px,env(safe-area-inset-left,0px)) max(48px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-right,0px))}
+  .cover{padding:28px 16px 40px;border-radius:14px;margin-bottom:36px}
+  .cover-badge{font-size:12px;padding:5px 12px;margin-bottom:18px}
+  .cover-name{font-size:clamp(28px,8.5vw,44px);letter-spacing:-1.5px}
+  .cover-tagline{font-size:14px;margin-bottom:24px}
+  .cover-title{font-size:clamp(17px,4.8vw,24px)}
+  .cover-desc{font-size:14px;margin-bottom:28px;max-width:none}
+  .cover-stats{gap:18px 24px}
+  .cs-num{font-size:28px}
+  .cover-footer{position:static;margin-top:20px;text-align:right;padding-top:8px}
+  .sec{margin-bottom:44px}
+  .sec-title{font-size:clamp(1.2rem,4.8vw,1.65rem);line-height:1.25}
+  .sec-desc{font-size:14px;margin-bottom:16px;max-width:none}
+  .divider{margin:28px 0}
+  .fcg,.toc-grid{grid-template-columns:1fr}
+  .metrics{flex-direction:column}
+  .metric{min-width:0;width:100%;flex:none}
+  .callout{padding:12px 14px;font-size:13px;gap:10px}
+  .table-scroll{margin-left:-12px;margin-right:-12px;padding-left:12px;padding-right:12px;width:calc(100% + 24px)}
+  .table-scroll .dtbl{width:100%;min-width:0;table-layout:fixed}
+  .dtbl td{word-break:break-word;hyphens:auto}
+  .dtbl{font-size:12.5px}
+  .dtbl th,.dtbl td{padding:8px 10px}
+  .col-box{padding:12px 14px}
+  .sub-title{font-size:15px;margin:24px 0 6px}
+  .sub-desc{font-size:13px;margin-bottom:14px}
+  .end-footer{margin-top:40px;padding:24px 16px;border-radius:12px}
+  .end-footer .ef-brand{font-size:18px}
+  .end-footer .ef-tag{font-size:13px}
+}
+@media (max-width:480px){
+  .topbar-nav a{padding:7px 9px;font-size:11.5px}
+  .cover{padding:22px 12px 36px}
+  .pill{font-size:11px;padding:3px 10px}
+}
 @media print{
   .topbar,.btn-pdf{display:none!important}
   #relatorio{padding:0;max-width:100%}
@@ -88,6 +136,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   .cover{border-radius:0;margin-bottom:0;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .sec{page-break-inside:avoid}
   .fcg{grid-template-columns:repeat(2,1fr)}
+  .table-scroll{overflow:visible;margin:0;padding:0;width:100%}
+  .table-scroll .dtbl{table-layout:auto;width:100%}
 }
 @page{size:A4;margin:12mm}
 </style>
@@ -390,6 +440,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <div class="sub-title">📋 Dados Pessoais</div>
   <div class="sub-desc">Perfil completo em cinco abas — cada uma cobre uma categoria de informação com validações específicas e modo de edição independente.</div>
   <div class="ss"><img src="screenshots/personal-data.png" alt="Dados Pessoais"/></div>
+  <div class="table-scroll">
   <table class="dtbl">
     <thead><tr><th>Aba</th><th>O que é gerenciado</th></tr></thead>
     <tbody>
@@ -400,6 +451,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
       <tr><td><strong>Chaves Pix</strong></td><td>Todos os tipos: CPF, e-mail, telefone, chave DICT e aleatória. Flags de chave ativa e principal. CRUD completo — cadastre, edite e remova chaves sem limitação de quantidade.</td></tr>
     </tbody>
   </table>
+  </div>
 
   <div class="sub-title">🩺 Informações Profissionais</div>
   <div class="sub-desc">Gestão das credenciais e especialidades do profissional de saúde.</div>
@@ -500,10 +552,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 </div>
 
 <!-- RODAPÉ -->
-<div style="margin-top:72px;background:#0f172a;border-radius:16px;padding:36px;text-align:center;color:rgba(255,255,255,.5)">
-  <div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:5px;letter-spacing:-1px">Humana</div>
-  <div style="font-size:14px;margin-bottom:4px">Plataforma de Gestão de Profissionais de Saúde</div>
-  <div style="font-size:12px;color:rgba(255,255,255,.25);margin-top:8px">Relatório de Funcionalidades · Abril / 2026 · v1.0</div>
+<div class="end-footer">
+  <div class="ef-brand">Humana</div>
+  <div class="ef-tag">Plataforma de Gestão de Profissionais de Saúde</div>
+  <div class="ef-meta">Relatório de Funcionalidades · Abril / 2026 · v1.0</div>
 </div>
 
 </div><!-- /relatorio -->

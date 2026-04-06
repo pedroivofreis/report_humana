@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Humana – Relatório de Funcionalidades</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;background:#f4f6f9;line-height:1.7}
+:root{
+  --blue:#2563eb;--blue-l:#dbeafe;--blue-d:#1e40af;
+  --teal:#0891b2;--teal-l:#cffafe;
+  --green:#16a34a;--green-l:#dcfce7;
+  --orange:#ea580c;--orange-l:#ffedd5;
+  --purple:#7c3aed;--purple-l:#ede9fe;
+  --red:#dc2626;--red-l:#fee2e2;
+  --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g700:#334155;--g800:#1e293b;
+  --r:12px;--rs:8px;
+  --sh:0 1px 3px rgba(0,0,0,.08);--sh-md:0 4px 16px rgba(0,0,0,.09);--sh-lg:0 8px 32px rgba(0,0,0,.12);
+}
+.topbar{position:sticky;top:0;z-index:999;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;padding:12px 40px;gap:16px}
+.topbar-logo{font-size:20px;font-weight:900;color:var(--blue-d);letter-spacing:-.5px;flex-shrink:0}
+.topbar-logo span{color:var(--teal)}
+.topbar-nav{display:flex;gap:2px;flex-wrap:wrap;flex:1;justify-content:center}
+.topbar-nav a{font-size:12px;color:var(--g600);text-decoration:none;padding:5px 10px;border-radius:6px;font-weight:500;transition:background .15s,color .15s;white-space:nowrap}
+.topbar-nav a:hover{background:var(--blue-l);color:var(--blue-d)}
+.btn-pdf{display:flex;align-items:center;gap:7px;background:var(--blue);color:#fff;border:none;cursor:pointer;padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,.35);transition:background .15s,transform .1s;white-space:nowrap;flex-shrink:0}
+.btn-pdf:hover{background:var(--blue-d);transform:translateY(-1px)}
+#relatorio{max-width:980px;margin:0 auto;padding:40px 28px 80px}
+.cover{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 52%,#1d4ed8 100%);border-radius:20px;padding:68px 60px;color:#fff;position:relative;overflow:hidden;margin-bottom:56px}
+.cover::before{content:'';position:absolute;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.28) 0%,transparent 70%);top:-110px;right:-70px}
+.cover::after{content:'';position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(8,145,178,.18) 0%,transparent 70%);bottom:-55px;left:-35px}
+.ci{position:relative;z-index:1}
+.cover-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 16px;font-size:13px;color:rgba(255,255,255,.8);margin-bottom:26px}
+.cover-name{font-size:50px;font-weight:900;letter-spacing:-2px;background:linear-gradient(135deg,#fff 40%,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.cover-tagline{font-size:16px;color:rgba(255,255,255,.55);margin-bottom:36px}
+.cover-title{font-size:28px;font-weight:800;margin-bottom:10px}
+.cover-desc{font-size:15.5px;color:rgba(255,255,255,.62);max-width:560px;margin-bottom:44px;line-height:1.65}
+.cover-stats{display:flex;gap:36px;flex-wrap:wrap}
+.cs-num{font-size:36px;font-weight:900;color:#7dd3fc;display:block;line-height:1}
+.cs-lbl{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;display:block}
+.cover-footer{position:absolute;bottom:26px;right:36px;font-size:12px;color:rgba(255,255,255,.25);z-index:1}
+.sec{margin-bottom:60px}
+.sec-lbl{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
+.sec-lbl::before{content:'';width:18px;height:2px;background:var(--blue);border-radius:1px}
+.sec-title{font-size:27px;font-weight:800;color:var(--g800);letter-spacing:-.4px;margin-bottom:8px}
+.sec-desc{font-size:15px;color:var(--g600);max-width:740px;margin-bottom:24px;line-height:1.75}
+.ss{width:100%;padding-bottom:56.25%;position:relative;border-radius:var(--r);overflow:hidden;box-shadow:0 0 0 1px var(--g200),var(--sh-lg);margin-bottom:24px;background:#1e293b}
+.ss img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.fcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
+.fc{background:#fff;border:1px solid var(--g200);border-radius:var(--rs);padding:15px 17px;display:flex;align-items:flex-start;gap:13px;box-shadow:var(--sh)}
+.fi{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;margin-top:1px}
+.fc h4{font-size:13.5px;font-weight:700;color:var(--g800);margin-bottom:3px}
+.fc p{font-size:13px;color:var(--g600);line-height:1.5}
+.ib{background:var(--blue-l)}.ig{background:var(--green-l)}.io{background:var(--orange-l)}.it{background:var(--teal-l)}.ip{background:var(--purple-l)}.ir{background:var(--red-l)}.iz{background:var(--g100)}
+.callout{display:flex;align-items:flex-start;gap:12px;background:#f0f9ff;border-left:4px solid var(--blue);border-radius:0 var(--rs) var(--rs) 0;padding:14px 18px;margin-bottom:18px;font-size:13.5px;color:#0c4a6e;line-height:1.6}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.pill{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700}
+.pg{background:var(--green-l);color:#15803d}.pb{background:var(--blue-l);color:#1e40af}.po{background:var(--orange-l);color:#c2410c}.pt{background:var(--teal-l);color:#0e7490}.pp{background:var(--purple-l);color:#6d28d9}.pr{background:var(--red-l);color:#b91c1c}.pz{background:var(--g100);color:#475569}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:18px}
+.dtbl th{background:var(--g100);padding:9px 13px;text-align:left;font-size:11px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--g200)}
+.dtbl td{padding:10px 13px;border-bottom:1px solid var(--g100);color:var(--g700);line-height:1.5}
+.dtbl tr:last-child td{border-bottom:none}
+.dtbl tr:hover td{background:var(--g50)}
+.metrics{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.metric{flex:1;min-width:130px;border-radius:var(--rs);padding:18px;text-align:center;background:#fff;border:1px solid var(--g200);box-shadow:var(--sh)}
+.metric-val{font-size:28px;font-weight:900;display:block;margin-bottom:3px}
+.metric-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--g400)}
+.mv-b .metric-val{color:var(--blue)}.mv-g .metric-val{color:var(--green)}.mv-o .metric-val{color:var(--orange)}.mv-t .metric-val{color:var(--teal)}.mv-p .metric-val{color:var(--purple)}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:44px}
+.toc-card{background:#fff;border:1px solid var(--g200);border-radius:var(--rs);padding:14px 16px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;box-shadow:var(--sh);transition:box-shadow .2s,border-color .2s,transform .18s}
+.toc-card:hover{box-shadow:var(--sh-md);border-color:var(--blue);transform:translateY(-2px)}
+.toc-card strong{display:block;font-size:13.5px;font-weight:700;color:var(--g800)}
+.toc-card span{font-size:12px;color:var(--g400)}
+.divider{height:1px;background:var(--g200);margin:52px 0}
+.sub-title{font-size:17px;font-weight:800;color:var(--g800);margin:32px 0 8px}
+.sub-desc{font-size:14px;color:var(--g600);margin-bottom:18px}
+.col-box{background:#fff;border:1px solid var(--g200);border-radius:var(--rs);padding:14px 18px;box-shadow:var(--sh);margin-bottom:14px}
+.col-box p{font-size:13.5px;color:var(--g700)}
+.col-box .col-lbl{font-size:11.5px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+@media print{
+  .topbar,.btn-pdf{display:none!important}
+  #relatorio{padding:0;max-width:100%}
+  body{background:#fff;font-size:12px}
+  .cover{border-radius:0;margin-bottom:0;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec{page-break-inside:avoid}
+  .fcg{grid-template-columns:repeat(2,1fr)}
+}
+@page{size:A4;margin:12mm}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo">Hum<span>ana</span></div>
+  <nav class="topbar-nav">
+    <a href="#s-login">Login</a>
+    <a href="#s-indicadores">Indicadores</a>
+    <a href="#s-pagamentos">Pagamentos</a>
+    <a href="#s-financeiro">Financeiro</a>
+    <a href="#s-planejado">Planejado</a>
+    <a href="#s-fechamento">Fechamento</a>
+    <a href="#s-pendencias">Pendências</a>
+    <a href="#s-carteira">Carteira</a>
+    <a href="#s-profissionais">Profissionais</a>
+    <a href="#s-locais">Locais</a>
+    <a href="#s-usuarios">Usuários</a>
+    <a href="#s-perfil">Perfil</a>
+  </nav>
+  <button type="button" class="btn-pdf" id="btn-pdf" aria-label="Baixar relatório em PDF">⬇ Baixar PDF</button>
+</header>
+
+<div id="relatorio">
+
+<!-- CAPA -->
+<div class="cover">
+  <div class="ci">
+    <div class="cover-badge">🏥 Plataforma de Gestão de Profissionais de Saúde</div>
+    <div class="cover-name">Humana</div>
+    <div class="cover-tagline">Humana Tecnologia — Sistema de Gestão</div>
+    <div class="cover-title">Relatório Completo de Funcionalidades</div>
+    <div class="cover-desc">Documento oficial com todas as funcionalidades entregues na plataforma, descrevendo cada módulo, tela, fluxo de trabalho e recurso disponível ao usuário.</div>
+    <div class="cover-stats">
+      <div><span class="cs-num">17</span><span class="cs-lbl">Telas</span></div>
+      <div><span class="cs-num">65+</span><span class="cs-lbl">Funcionalidades</span></div>
+      <div><span class="cs-num">10</span><span class="cs-lbl">Módulos</span></div>
+      <div><span class="cs-num">25</span><span class="cs-lbl">APIs REST</span></div>
+    </div>
+  </div>
+  <div class="cover-footer">Abril / 2026 · v1.0</div>
+</div>
+
+<!-- SUMÁRIO -->
+<div class="sec" id="s-sumario">
+  <div class="sec-lbl">Visão Geral</div>
+  <div class="sec-title">O que a Humana entrega</div>
+  <div class="sec-desc">A Humana é uma plataforma web completa que substitui planilhas e processos manuais, centralizando a gestão operacional e financeira de profissionais de saúde — do cadastro ao pagamento, em um único sistema integrado e acessível de qualquer dispositivo.</div>
+  <div class="metrics">
+    <div class="metric mv-b"><span class="metric-val">17</span><span class="metric-lbl">Telas do sistema</span></div>
+    <div class="metric mv-g"><span class="metric-val">65+</span><span class="metric-lbl">Funcionalidades</span></div>
+    <div class="metric mv-o"><span class="metric-val">10</span><span class="metric-lbl">Módulos</span></div>
+    <div class="metric mv-t"><span class="metric-val">25</span><span class="metric-lbl">Endpoints API</span></div>
+    <div class="metric mv-p"><span class="metric-val">19</span><span class="metric-lbl">Migrações DB</span></div>
+  </div>
+  <div class="toc-grid">
+    <a class="toc-card" href="#s-login"><span style="font-size:22px">🔐</span><div><strong>Login</strong><span>Autenticação segura por CPF</span></div></a>
+    <a class="toc-card" href="#s-indicadores"><span style="font-size:22px">📊</span><div><strong>Indicadores</strong><span>Dashboard de performance financeira</span></div></a>
+    <a class="toc-card" href="#s-pagamentos"><span style="font-size:22px">💳</span><div><strong>Pagamentos</strong><span>Liberação e conclusão em lote</span></div></a>
+    <a class="toc-card" href="#s-financeiro"><span style="font-size:22px">💰</span><div><strong>Relatório Financeiro</strong><span>Custos, receitas e lançamentos</span></div></a>
+    <a class="toc-card" href="#s-planejado"><span style="font-size:22px">📅</span><div><strong>Planejado</strong><span>Plantões previstos vs. realizados</span></div></a>
+    <a class="toc-card" href="#s-plantoes"><span style="font-size:22px">✅</span><div><strong>Plantões Realizados</strong><span>Registros confirmados + exportação XLSX</span></div></a>
+    <a class="toc-card" href="#s-fechamento"><span style="font-size:22px">🕐</span><div><strong>Fechamento de Ponto</strong><span>Importação e fechamento mensal</span></div></a>
+    <a class="toc-card" href="#s-pendencias"><span style="font-size:22px">⚠️</span><div><strong>Pendências</strong><span>Análise por instituição e setor</span></div></a>
+    <a class="toc-card" href="#s-relatorios"><span style="font-size:22px">📈</span><div><strong>Relatórios</strong><span>Somatórias e visões gerenciais</span></div></a>
+    <a class="toc-card" href="#s-carteira"><span style="font-size:22px">👛</span><div><strong>Carteira</strong><span>Saldo e histórico por profissional</span></div></a>
+    <a class="toc-card" href="#s-profissionais"><span style="font-size:22px">👨‍⚕️</span><div><strong>Profissionais</strong><span>Cadastro e gestão completa</span></div></a>
+    <a class="toc-card" href="#s-locais"><span style="font-size:22px">🏥</span><div><strong>Locais e Setores</strong><span>Gestão de instituições</span></div></a>
+    <a class="toc-card" href="#s-usuarios"><span style="font-size:22px">👥</span><div><strong>Usuários</strong><span>Controle de acesso da equipe</span></div></a>
+    <a class="toc-card" href="#s-perfil"><span style="font-size:22px">👤</span><div><strong>Meu Perfil</strong><span>Dados pessoais e segurança</span></div></a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- LOGIN -->
+<div class="sec" id="s-login">
+  <div class="sec-lbl">Acesso</div>
+  <div class="sec-title">🔐 Login</div>
+  <div class="sec-desc">Ponto de entrada da plataforma com autenticação segura via CPF e senha. O sistema utiliza tokens JWT com validade controlada — sessões expiradas são encerradas automaticamente, redirecionando o usuário ao login sem perda de dados. Todas as páginas são protegidas: qualquer acesso sem autenticação é bloqueado e redirecionado.</div>
+  <div class="ss"><img src="screenshots/login.png" alt="Login"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">🪪</div><div><h4>Autenticação por CPF</h4><p>Campo com máscara automática (###.###.###-##) que formata o número enquanto o usuário digita, garantindo a entrada correta sem esforço extra e evitando erros de formato.</p></div></div>
+    <div class="fc"><div class="fi ib">🔑</div><div><h4>Senha com visibilidade controlada</h4><p>Ícone de olho no campo de senha para alternar entre ocultar e mostrar o que foi digitado — elimina erros de digitação sem comprometer a segurança do acesso.</p></div></div>
+    <div class="fc"><div class="fi it">💾</div><div><h4>Continuar logado</h4><p>Checkbox que persiste a sessão no navegador, evitando que o usuário precise redigitar as credenciais a cada visita — ideal para uso no computador do trabalho.</p></div></div>
+    <div class="fc"><div class="fi ig">🛡️</div><div><h4>Proteção de rotas</h4><p>Todas as páginas do sistema verificam autenticação. Tentativas de acesso direto por URL sem sessão ativa redirecionam automaticamente ao login.</p></div></div>
+    <div class="fc"><div class="fi io">⚠️</div><div><h4>Feedback claro de erros</h4><p>Mensagens objetivas em caso de credenciais inválidas ou conta inativa, orientando o usuário sem expor informações técnicas ou de segurança do sistema.</p></div></div>
+    <div class="fc"><div class="fi ip">🔄</div><div><h4>Expiração automática de sessão</h4><p>Tokens JWT com validade configurável. Ao expirar, o sistema encerra a sessão e solicita novo login — protegendo contas em dispositivos compartilhados.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- INDICADORES -->
+<div class="sec" id="s-indicadores">
+  <div class="sec-lbl">Dashboard</div>
+  <div class="sec-title">📊 Indicadores de Performance</div>
+  <div class="sec-desc">Tela principal após o login. Funciona como o centro de controle da operação, consolidando em tempo real os indicadores financeiros do ciclo completo — do planejamento ao pagamento. Cada indicador reflete uma etapa do processo e pode ser filtrado por mês, ano e localidade. Além da visualização em cards, há gráficos interativos e opções de compartilhamento e impressão integradas.</div>
+  <div class="ss"><img src="screenshots/indicator.png" alt="Indicadores"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi io">🟠</div><div><h4>Planejado — baseline da operação</h4><p>Total de plantões e valor financeiro previstos. É a referência central contra a qual todos os outros indicadores são medidos e comparados percentualmente.</p></div></div>
+    <div class="fc"><div class="fi ib">🔵</div><div><h4>Realizado — execução confirmada</h4><p>Plantões efetivamente cumpridos com percentual de aderência ao planejamento. Indica diretamente a eficiência operacional da escala no período.</p></div></div>
+    <div class="fc"><div class="fi it">🩵</div><div><h4>Liberado — aprovado para pagamento</h4><p>Valor que passou pela validação do fechamento e está aprovado. Representa o que já pode ser processado financeiramente sem necessidade de ação adicional.</p></div></div>
+    <div class="fc"><div class="fi ig">🟢</div><div><h4>Pago — desembolso confirmado</h4><p>Total efetivamente desembolsado aos profissionais. Estágio final do ciclo financeiro e referência de execução orçamentária para qualquer período.</p></div></div>
+    <div class="fc"><div class="fi ip">🟣</div><div><h4>Faturado — receita do período</h4><p>Valor faturado à instituição contratante. Permite cruzar receita com despesa para calcular a margem operacional bruta da operação.</p></div></div>
+    <div class="fc"><div class="fi iz">⚖️</div><div><h4>Saldo — balanço do período</h4><p>Diferença entre contratado e realizado. Saldo positivo indica subexecução; negativo indica extrapolação do planejamento — ambos geram alertas de gestão.</p></div></div>
+    <div class="fc"><div class="fi ib">📅</div><div><h4>Filtro de competência</h4><p>Seletor de mês e ano que atualiza simultaneamente todos os indicadores, cards e gráficos da tela. Permite navegar por qualquer período histórico sem sair do painel.</p></div></div>
+    <div class="fc"><div class="fi it">📲</div><div><h4>Compartilhar via WhatsApp</h4><p>Envio do relatório do período diretamente por WhatsApp com um único clique — agiliza a comunicação com gestores, diretores e equipes externas.</p></div></div>
+    <div class="fc"><div class="fi iz">🖨️</div><div><h4>Impressão do relatório</h4><p>Formata o painel para impressão em papel ou geração de PDF — com layout otimizado que remove elementos de navegação e preserva gráficos e tabelas.</p></div></div>
+    <div class="fc"><div class="fi ip">📈</div><div><h4>Gráficos interativos</h4><p>Visualizações evolutivas dos indicadores com ApexCharts — permitem identificar tendências, picos e quedas ao longo do mês com hover para detalhes de cada ponto.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- HOME DASHBOARD -->
+<div class="sec" id="s-dashboard">
+  <div class="sec-lbl">Dashboard</div>
+  <div class="sec-title">🏠 Home — Acesso Rápido</div>
+  <div class="sec-desc">Tela de boas-vindas personalizada com o nome do usuário logado e acesso rápido via cards visuais aos quatro módulos principais. Projetada para que qualquer usuário, independente de familiaridade com o sistema, navegue com segurança para o módulo correto.</div>
+  <div class="ss"><img src="screenshots/dashboard.png" alt="Home"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">💰</div><div><h4>Relatório Financeiro</h4><p>Card com imagem e descrição que direciona ao módulo financeiro completo com visão de receitas, despesas e lançamentos.</p></div></div>
+    <div class="fc"><div class="fi ig">💳</div><div><h4>Pagamento de Folha</h4><p>Acesso direto ao módulo de pagamentos para liberar e concluir pagamentos de profissionais com poucos cliques.</p></div></div>
+    <div class="fc"><div class="fi io">📅</div><div><h4>Planejado</h4><p>Atalho para o controle de plantões planejados com acompanhamento de execução, pendências e divergências.</p></div></div>
+    <div class="fc"><div class="fi it">🕐</div><div><h4>Folha de Ponto</h4><p>Acesso ao módulo de fechamento mensal de ponto — importação de arquivos e execução do fechamento oficial.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PAGAMENTOS -->
+<div class="sec" id="s-pagamentos">
+  <div class="sec-lbl">Financeiro</div>
+  <div class="sec-title">💳 Pagamentos</div>
+  <div class="sec-desc">Módulo central do ciclo financeiro. Exibe todos os pagamentos liberados e prontos para processamento, com filtros avançados para localizar registros específicos e confirmação em lote com um único clique. O sistema diferencia automaticamente folha de pagamento regular de custos operacionais avulsos, e calcula o valor a pagar com base no saldo de carteira e nas regras contratuais de cada profissional.</div>
+  <div class="ss"><img src="screenshots/payments.png" alt="Pagamentos"/></div>
+  <div class="callout">💡 <div><strong>Ciclo de pagamento na plataforma:</strong> Planejado → Realizado → Fechamento → Liberado → <strong>Pago</strong>. Apenas registros com status "Liberado" aparecem aqui para confirmação final.</div></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi io">📊</div><div><h4>Cards de resumo executivo</h4><p>Destaques no topo da tela com: quantidade de profissionais com pagamento pendente e percentual sobre o total; valor total a pagar versus valor em aberto — visão instantânea do passivo financeiro.</p></div></div>
+    <div class="fc"><div class="fi ib">🔍</div><div><h4>Filtro por profissional</h4><p>Autocomplete que busca simultaneamente por nome e CRM — localiza qualquer profissional com poucos caracteres, mesmo em bases com centenas de registros.</p></div></div>
+    <div class="fc"><div class="fi it">📍</div><div><h4>Filtro por local</h4><p>Seleção de instituição para segmentar pagamentos por unidade. Essencial para operações multissite onde cada local tem gestores diferentes.</p></div></div>
+    <div class="fc"><div class="fi ir">⚠️</div><div><h4>Filtro por pendência</h4><p>Exibe apenas profissionais com pendências abertas (dados bancários incompletos, documentação faltando etc.), agilizando a resolução antes do processamento.</p></div></div>
+    <div class="fc"><div class="fi iz">📅</div><div><h4>Filtro de competência</h4><p>Visualize pagamentos de qualquer período histórico — não apenas o mês atual. Essencial para reprocessamentos, auditorias e consultas retroativas.</p></div></div>
+    <div class="fc"><div class="fi ig">☑️</div><div><h4>Seleção múltipla e lote</h4><p>Checkboxes individuais por linha com botão "Concluir Pagamentos" que processa todos os selecionados de uma só vez, registrando a data exata via seletor de calendário.</p></div></div>
+    <div class="fc"><div class="fi ip">👁️</div><div><h4>Detalhes expandíveis</h4><p>Cada linha expande para mostrar detalhes completos: valor bruto, descontos, tipo de pagamento, referência contratual e histórico de processamento.</p></div></div>
+    <div class="fc"><div class="fi io">🏷️</div><div><h4>Chips de status e tipo</h4><p>Identificação visual imediata: tipo em azul (Folha) ou roxo (Operacional), status em ciano (Liberado), verde (Pago) ou laranja (Pendente).</p></div></div>
+  </div>
+  <div class="pills">
+    <span class="pill pt">Liberado</span><span class="pill pg">Pago</span><span class="pill po">Pendente</span><span class="pill pb">Folha de Pagamento</span><span class="pill pp">Custo Operacional</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FINANCEIRO -->
+<div class="sec" id="s-financeiro">
+  <div class="sec-lbl">Financeiro</div>
+  <div class="sec-title">💰 Relatório Financeiro</div>
+  <div class="sec-desc">Módulo de análise financeira detalhada que cruza plantões realizados com os valores de pagamento correspondentes. Apresenta visão completa por profissional, local e setor — diferenciando folha de pagamento de custos operacionais manuais. Permite ao financeiro ter controle total sobre o que foi planejado, quanto está liberado e quanto foi pago em cada competência, com possibilidade de lançar e excluir registros diretamente pela interface.</div>
+  <div class="ss"><img src="screenshots/financial.png" alt="Financeiro"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">📊</div><div><h4>Indicadores no topo</h4><p>Três cards fixos com: plantões planejados e valor total; quantidade e percentual dos liberados; quantidade e percentual dos pagos — atualizam conforme os filtros aplicados.</p></div></div>
+    <div class="fc"><div class="fi it">🔍</div><div><h4>Filtros avançados</h4><p>Combinação de profissional (autocomplete), local hierárquico (instituição → setor), status (Todos / Liberado / Pago / Parcialmente pago) e competência.</p></div></div>
+    <div class="fc"><div class="fi ig">✏️</div><div><h4>Lançamento de custo operacional</h4><p>Modal "Lançar Pagamento" para registrar despesas avulsas: beneficiário (profissional cadastrado ou nome externo), valor em R$, data, local e descrição livre.</p></div></div>
+    <div class="fc"><div class="fi ir">🗑️</div><div><h4>Exclusão de lançamentos</h4><p>Cada custo operacional pode ser excluído individualmente com confirmação obrigatória — mantendo a integridade e o histórico financeiro auditável.</p></div></div>
+    <div class="fc"><div class="fi ip">👁️</div><div><h4>Detalhes de custos operacionais</h4><p>Modal dedicado para visualizar todos os campos de cada custo lançado: data, valor, responsável pelo lançamento e justificativa.</p></div></div>
+    <div class="fc"><div class="fi io">🏷️</div><div><h4>Separação contábil por tipo</h4><p>Chips distintos para Custo Operacional e Folha de Pagamento em cada linha, facilitando a separação contábil e a conciliação com o sistema de gestão financeira.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PLANEJADO -->
+<div class="sec" id="s-planejado">
+  <div class="sec-lbl">Planejamento</div>
+  <div class="sec-title">📅 Planejado</div>
+  <div class="sec-desc">Módulo de controle que compara plantões previstos com os realizados, identificando divergências e pendências que precisam de ação. Funciona como o radar operacional da gestão: mostra em tempo real onde a execução está alinhada com o planejamento e onde há gaps que precisam de atenção. Suporta importação de relatório financeiro externo via arquivo para alimentar o planejamento de forma automatizada.</div>
+  <div class="ss"><img src="screenshots/planning.png" alt="Planejado"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi io">📋</div><div><h4>Planejado — baseline</h4><p>Total de plantões e valor financeiro previstos para o período. Referência central para todos os demais indicadores do módulo.</p></div></div>
+    <div class="fc"><div class="fi ib">✅</div><div><h4>Realizado — execução confirmada</h4><p>Quantidade de plantões confirmados e percentual de aderência ao planejamento. Reflete diretamente a eficiência da escala no período.</p></div></div>
+    <div class="fc"><div class="fi io">🔔</div><div><h4>Pendentes — aguardando ação</h4><p>Plantões planejados que ainda não foram confirmados como realizados nem marcados como cancelados. Cada item requer resolução pela equipe.</p></div></div>
+    <div class="fc"><div class="fi ir">⚡</div><div><h4>Divergências — inconsistências</h4><p>Contradições entre planejamento e dados de fechamento importados. Cada divergência é listada individualmente para resolução manual pelo gestor.</p></div></div>
+    <div class="fc"><div class="fi it">📤</div><div><h4>Importação de relatório</h4><p>Upload de arquivo financeiro externo (Excel/CSV) que é processado automaticamente e cruzado com o planejamento — alimentando os dados sem digitação manual.</p></div></div>
+    <div class="fc"><div class="fi iz">👁️</div><div><h4>Detalhamento por linha</h4><p>Expansão de cada registro para visualizar: CRM, local, setor, valor a pagar, competência e status atual — sem precisar sair da tela.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PLANTÕES REALIZADOS -->
+<div class="sec" id="s-plantoes">
+  <div class="sec-lbl">Planejamento</div>
+  <div class="sec-title">✅ Plantões Realizados</div>
+  <div class="sec-desc">Registro completo e fonte de verdade de todos os plantões efetivamente cumpridos. Concentra o histórico real de execução de cada profissional em cada local e setor, com valores brutos, líquidos, saldo acumulado e status de pagamento. A exportação para Excel permite integração com sistemas contábeis externos e análises personalizadas fora da plataforma.</div>
+  <div class="ss"><img src="screenshots/completed.png" alt="Plantões Realizados"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">📊</div><div><h4>Cards de indicadores</h4><p>Totais de Planejados, Liberados (com %) e Pagos (com %) para o período filtrado — contexto imediato para o volume de dados exibido na tabela.</p></div></div>
+    <div class="fc"><div class="fi ig">💵</div><div><h4>Valores brutos e líquidos</h4><p>Para cada plantão: valor bruto contratado e valor líquido após descontos aplicáveis — permitindo auditoria completa da composição dos valores pagos.</p></div></div>
+    <div class="fc"><div class="fi it">⚖️</div><div><h4>Saldo acumulado</h4><p>Coluna de saldo que consolida o total acumulado de cada profissional no período — diferença entre o realizado e o efetivamente pago até a data.</p></div></div>
+    <div class="fc"><div class="fi io">⏱️</div><div><h4>Horas trabalhadas</h4><p>Carga horária de cada plantão em horas, facilitando o controle de jornada e o cálculo de banco de horas quando aplicável ao contrato.</p></div></div>
+    <div class="fc"><div class="fi ip">📥</div><div><h4>Exportação para Excel</h4><p>Gera arquivo XLSX completo com todos os plantões do período: profissional, local, setor, datas, horas, valores e status — pronto para análise contábil ou conciliação.</p></div></div>
+    <div class="fc"><div class="fi iz">🔍</div><div><h4>Filtros completos</h4><p>Combinação de profissional (autocomplete), local hierárquico, status e competência — isolando exatamente o conjunto de dados necessário para cada análise.</p></div></div>
+  </div>
+  <div class="col-box"><div class="col-lbl">Colunas da tabela</div><p>Profissional · Local · Setor · Horas trabalhadas · Valor bruto · Valor líquido · Saldo total · Data do plantão · Status</p></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FECHAMENTO -->
+<div class="sec" id="s-fechamento">
+  <div class="sec-lbl">Operacional</div>
+  <div class="sec-title">🕐 Fechamento de Ponto</div>
+  <div class="sec-desc">Módulo responsável pelo processo completo de fechamento mensal de folha. Centraliza a importação dos arquivos físicos de ponto digitalizados (JPG ou PDF), o acompanhamento dos registros por profissional e setor, e a execução do fechamento oficial com cálculo automático de valores. Cada operação é rastreada com data, responsável e status — criando histórico auditável de todo o processo.</div>
+  <div class="ss"><img src="screenshots/timesheet.png" alt="Fechamento"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">📋</div><div><h4>Lista com status coloridos</h4><p>Tabela de todos os registros de fechamento com competência, profissional, CRM, local, setor e status atual em chips coloridos — visão rápida do estado de cada registro.</p></div></div>
+    <div class="fc"><div class="fi io">🔍</div><div><h4>Filtros de navegação</h4><p>Profissional, local, setor e competência (mês/ano) — localiza rapidamente registros específicos em operações com grande volume de profissionais e locais cadastrados.</p></div></div>
+    <div class="fc"><div class="fi it">📤</div><div><h4>Importação em lote de ponto</h4><p>Modal onde o responsável seleciona local e setor e faz upload de múltiplos arquivos simultaneamente (JPG, JPEG, PDF sem limite de quantidade). Processamento assíncrono no servidor.</p></div></div>
+    <div class="fc"><div class="fi ig">🔒</div><div><h4>Realizar fechamento mensal</h4><p>Fluxo guiado: seleção de local/setor → quantidade de atendimentos → confirmação do valor base → seleção da competência. O sistema exibe automaticamente os plantões previstos para conferência antes de confirmar.</p></div></div>
+    <div class="fc"><div class="fi ip">👁️</div><div><h4>Detalhes por registro</h4><p>Acesso aos dados completos de cada fechamento: datas, valores calculados, profissional responsável e histórico de mudanças de status.</p></div></div>
+    <div class="fc"><div class="fi iz">🗂️</div><div><h4>Rastreabilidade completa</h4><p>Cada fechamento registra automaticamente o usuário responsável pela operação, a data de execução e o status final — histórico imutável e auditável.</p></div></div>
+  </div>
+  <div class="callout">📋 <div><strong>Fluxo padrão:</strong> (1) Importar arquivos de ponto do mês → (2) Verificar registros na lista → (3) Executar "Realizar Fechamento" com dados do período → (4) Acompanhar processamento na tela de Importação em Lote.</div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- IMPORTAÇÃO -->
+<div class="sec" id="s-importacao">
+  <div class="sec-lbl">Operacional</div>
+  <div class="sec-title">📦 Importação em Lote</div>
+  <div class="sec-desc">Tela dedicada ao monitoramento de todas as importações de arquivos de ponto, com histórico completo e status detalhado de cada operação. Permite acompanhar o processamento de importações grandes, identificar arquivos com erro e obter a mensagem de causa para diagnóstico e reenvio.</div>
+  <div class="ss"><img src="screenshots/import-batch.png" alt="Importação em Lote"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">📋</div><div><h4>Histórico completo</h4><p>Listagem de todas as importações com data/hora, nome do arquivo e status — ordenadas da mais recente para a mais antiga para facilitar o acompanhamento imediato.</p></div></div>
+    <div class="fc"><div class="fi ig">✅</div><div><h4>Status de sucesso</h4><p>Chip verde indica que o arquivo foi processado, validado e os dados foram inseridos corretamente no sistema — sem necessidade de ação adicional.</p></div></div>
+    <div class="fc"><div class="fi ir">❌</div><div><h4>Diagnóstico de erros</h4><p>Arquivos com falha exibem o tipo de erro (processamento, leitura de dados etc.) e mensagem explicativa para orientar a correção e o reenvio do arquivo.</p></div></div>
+    <div class="fc"><div class="fi ip">🔍</div><div><h4>Validar detalhes</h4><p>Botão em cada linha para acessar os detalhes completos da importação: dados extraídos, campos com erro e observações do sistema de processamento.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PENDÊNCIAS -->
+<div class="sec" id="s-pendencias">
+  <div class="sec-lbl">Análise</div>
+  <div class="sec-title">⚠️ Análise de Pendências</div>
+  <div class="sec-desc">Painel analítico que agrupa em três categorias todas as pendências operacionais e financeiras da plataforma. Exibe barras de progresso para medir o andamento de cada categoria e permite drill-down por instituição e setor — revelando exatamente quais profissionais possuem pendências e de que natureza. É o painel central para gestores que precisam agir sobre itens atrasados ou inconsistentes.</div>
+  <div class="ss"><img src="screenshots/pending.png" alt="Pendências"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi io">🟠</div><div><h4>Pendências de plantão</h4><p>Plantões do planejamento sem confirmação de execução nem fechamento associado. Cada item representa um plantão que precisa ser validado (confirmado ou cancelado) pela equipe.</p></div></div>
+    <div class="fc"><div class="fi it">🩵</div><div><h4>Análise pendente (liberação)</h4><p>Registros que passaram pelo fechamento mas aguardam análise e aprovação do gestor para liberação do pagamento — o gargalo mais comum do ciclo financeiro.</p></div></div>
+    <div class="fc"><div class="fi ig">🟢</div><div><h4>Pendente de pagamento</h4><p>Liberados e aprovados mas sem pagamento confirmado. Itens prontos para processamento financeiro imediato — nenhuma ação de validação é necessária.</p></div></div>
+    <div class="fc"><div class="fi ib">📊</div><div><h4>Barras de progresso</h4><p>Visualização percentual do andamento de cada categoria — permite avaliar instantaneamente a saúde operacional e priorizar onde atuar primeiro.</p></div></div>
+    <div class="fc"><div class="fi iz">🏥</div><div><h4>Filtro hierárquico</h4><p>Seleção de instituição e setor para focar a análise em uma unidade específica, reduzindo ruído em operações com múltiplas unidades e gestores diferentes.</p></div></div>
+    <div class="fc"><div class="fi ip">🔽</div><div><h4>Drill-down por profissional</h4><p>Expanda qualquer seção para ver a lista detalhada de profissionais com pendências naquela categoria, com valores, datas e informações de contato.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- RELATÓRIOS -->
+<div class="sec" id="s-relatorios">
+  <div class="sec-lbl">Análise</div>
+  <div class="sec-title">📈 Relatórios</div>
+  <div class="sec-desc">Hub centralizado com três visões gerenciais distintas, filtráveis por competência e localidade. O gestor alterna entre perspectivas dos dados — somatória operacional, plantões planejados ou resumo financeiro — sem precisar mudar de módulo, usando abas para navegação fluida e imediata.</div>
+  <div class="ss"><img src="screenshots/report.png" alt="Relatórios"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">➕</div><div><h4>Somatória de Plantões</h4><p>Totalizador consolidado agrupando todos os plantões por profissional, local e setor. Relatório operacional ideal para reuniões de gestão e apresentações executivas.</p></div></div>
+    <div class="fc"><div class="fi io">📅</div><div><h4>Plantões Planejados</h4><p>Lista completa dos plantões previstos com profissional, local, setor, data e valor — visão integral da escala do período para análise e validação.</p></div></div>
+    <div class="fc"><div class="fi ig">💰</div><div><h4>Relatório Financeiro resumido</h4><p>Consolidado por profissional com valores totais, tipo de contrato e status — visão rápida do financeiro para reuniões sem precisar abrir o módulo completo.</p></div></div>
+    <div class="fc"><div class="fi it">🏥</div><div><h4>Filtro por localidade</h4><p>Hierarquia instituição → setor que atualiza o relatório em tempo real. Segmenta os dados para a unidade desejada sem precisar recarregar a página.</p></div></div>
+    <div class="fc"><div class="fi iz">📅</div><div><h4>Competência única para todos</h4><p>Selecione o período uma vez e navegue entre as três abas vendo as diferentes perspectivas do mesmo mês — sem precisar repetir o filtro.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- CARTEIRA -->
+<div class="sec" id="s-carteira">
+  <div class="sec-lbl">Financeiro</div>
+  <div class="sec-title">👛 Carteira de Profissionais</div>
+  <div class="sec-desc">Extrato financeiro interno de cada profissional, com saldo atualizado e histórico completo de movimentações. Funciona como um sistema de conta corrente — cada crédito e débito é registrado cronologicamente, o saldo é calculado automaticamente e as pendências são destacadas para ação imediata. Permite também efetuar pagamentos diretamente pela plataforma sem usar sistemas externos.</div>
+  <div class="ss"><img src="screenshots/wallet.png" alt="Carteira"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ig">💰</div><div><h4>Saldo atual em destaque</h4><p>Coluna de saldo calculado automaticamente a partir do histórico completo de transações — mostra de forma imediata o valor disponível ou devedor de cada profissional.</p></div></div>
+    <div class="fc"><div class="fi ir">⚠️</div><div><h4>Indicador de pendências</h4><p>Flag Sim/Não visível diretamente na listagem, com filtro dedicado para exibir apenas profissionais com pendências abertas — priorizando quem precisa de atenção imediata.</p></div></div>
+    <div class="fc"><div class="fi ib">📜</div><div><h4>Extrato completo</h4><p>Expansão de linha com cada transação em ordem cronológica: data, descrição, tipo (crédito/débito/desconto) e valor individual — histórico auditável de todas as movimentações.</p></div></div>
+    <div class="fc"><div class="fi it">💳</div><div><h4>Pagamento direto</h4><p>Botão "Pagar" abre modal para efetuar pagamento ao profissional com registro imediato na carteira — sem precisar sair da plataforma ou usar sistemas externos.</p></div></div>
+    <div class="fc"><div class="fi ip">📝</div><div><h4>Observações de pendência</h4><p>Campo editável para documentar o motivo de uma pendência, a tratativa em andamento ou qualquer informação relevante para o time de gestão financeira.</p></div></div>
+    <div class="fc"><div class="fi iz">🔍</div><div><h4>Filtros de busca</h4><p>Autocomplete por nome do profissional e filtro por situação de pendência — agilizando a navegação mesmo em bases com centenas de profissionais cadastrados.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PROFISSIONAIS -->
+<div class="sec" id="s-profissionais">
+  <div class="sec-lbl">Cadastro</div>
+  <div class="sec-title">👨‍⚕️ Gestão de Profissionais</div>
+  <div class="sec-desc">Módulo central de cadastro e gestão do ciclo de vida completo dos profissionais de saúde. Cobre desde o registro inicial com dados básicos até informações pessoais detalhadas, dados complementares exigidos pelo eSocial, endereço com autopreenchimento por CEP, dados bancários e Pix, registro profissional (CRM), especialidades médicas e documentos digitalizados — tudo organizado em abas intuitivas para facilitar a navegação e edição.</div>
+  <div class="ss"><img src="screenshots/professionals.png" alt="Profissionais"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">🔍</div><div><h4>Busca em tempo real</h4><p>Campo de pesquisa por nome com resultado imediato e filtro de status (Todos / Pendente / Ativo). Paginação configurável: 5, 10, 20 ou 50 itens por página com indicador de posição.</p></div></div>
+    <div class="fc"><div class="fi ig">➕</div><div><h4>Criar profissional</h4><p>Modal de cadastro rápido com nome completo, CPF (máscara + validação), celular e e-mail. Após criar, o perfil completo é preenchido na tela de detalhes por abas.</p></div></div>
+    <div class="fc"><div class="fi io">🏷️</div><div><h4>Funções visíveis na lista</h4><p>Chips coloridos com os papéis (roles) de cada profissional diretamente na listagem — sem precisar abrir o detalhe para saber o perfil de acesso.</p></div></div>
+    <div class="fc"><div class="fi it">📋</div><div><h4>Status de cadastro</h4><p>Indicação visual do estágio do cadastro: Ativo (verde) ou Pendente (laranja) — identifica imediatamente quem ainda precisa completar informações obrigatórias.</p></div></div>
+  </div>
+
+  <div class="sub-title">📋 Dados Pessoais</div>
+  <div class="sub-desc">Perfil completo em cinco abas — cada uma cobre uma categoria de informação com validações específicas e modo de edição independente.</div>
+  <div class="ss"><img src="screenshots/personal-data.png" alt="Dados Pessoais"/></div>
+  <table class="dtbl">
+    <thead><tr><th>Aba</th><th>O que é gerenciado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Dados Pessoais</strong></td><td>Nome completo, e-mail, telefone (máscara + validação 10-11 dígitos), CPF, senha de acesso e data de nascimento com validações em tempo real.</td></tr>
+      <tr><td><strong>Dados Complementares</strong></td><td>Estado civil, naturalidade, nacionalidade, nome da mãe e do pai, deficiência (tipo e grau), gênero, sexo e raça/cor — campos exigidos pelo eSocial e formulários hospitalares.</td></tr>
+      <tr><td><strong>Endereço</strong></td><td>CEP com autopreenchimento automático via API (preenche logradouro, bairro, cidade e UF), número, complemento e estado — reduz erros e tempo de cadastro.</td></tr>
+      <tr><td><strong>Contas Bancárias</strong></td><td>Tipo (corrente/poupança), número, dígito verificador, agência, banco e código bancário. Múltiplas contas com flag de conta principal. CRUD completo com confirmação de exclusão.</td></tr>
+      <tr><td><strong>Chaves Pix</strong></td><td>Todos os tipos: CPF, e-mail, telefone, chave DICT e aleatória. Flags de chave ativa e principal. CRUD completo — cadastre, edite e remova chaves sem limitação de quantidade.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">🩺 Informações Profissionais</div>
+  <div class="sub-desc">Gestão das credenciais e especialidades do profissional de saúde.</div>
+  <div class="ss"><img src="screenshots/prof-info.png" alt="Info Profissional"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">🏥</div><div><h4>Especialidades (CBO)</h4><p>Cadastro de profissão e especialidade baseado na Classificação Brasileira de Ocupações, com flag de especialidade principal. CRUD completo com validação de duplicidade.</p></div></div>
+    <div class="fc"><div class="fi io">📃</div><div><h4>Registro profissional (CRM)</h4><p>Número do CRM, estado de registro (UF) e data de emissão. Suporta múltiplos CRMs por profissional (registros em diferentes estados) com upload de documento comprobatório.</p></div></div>
+    <div class="fc"><div class="fi it">📎</div><div><h4>Documentos vinculados ao CRM</h4><p>Upload de arquivo diretamente vinculado ao registro profissional — armazenado em AWS S3 com acesso seguro e visualização integrada sem download.</p></div></div>
+  </div>
+
+  <div class="sub-title">📎 Documentos e Anexos</div>
+  <div class="sub-desc">Gestão de todos os documentos pessoais do profissional com upload, visualização em modal e exclusão segura.</div>
+  <div class="ss"><img src="screenshots/attachments.png" alt="Anexos"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">📄</div><div><h4>RG</h4><p>Documento de identidade com número, órgão emissor e arquivo anexo digitalizado.</p></div></div>
+    <div class="fc"><div class="fi it">🚗</div><div><h4>CNH</h4><p>Carteira nacional de habilitação com número e arquivo em PDF ou imagem.</p></div></div>
+    <div class="fc"><div class="fi io">🩺</div><div><h4>CRM</h4><p>Certificado de registro no Conselho Regional de Medicina com documento comprobatório.</p></div></div>
+    <div class="fc"><div class="fi ig">🏥</div><div><h4>CNS / SUS</h4><p>Cartão Nacional de Saúde para vínculo com sistemas e prontuários do SUS.</p></div></div>
+    <div class="fc"><div class="fi ip">💉</div><div><h4>Carteira de Vacinação</h4><p>Comprovante de imunização aceito em qualquer formato de arquivo digital.</p></div></div>
+    <div class="fc"><div class="fi iz">🏠</div><div><h4>Comprovante de Residência</h4><p>Documento de endereço atual em qualquer formato digital — sem campo de código.</p></div></div>
+    <div class="fc"><div class="fi ib">👁️</div><div><h4>Visualizar sem download</h4><p>Modal de preview do documento diretamente na plataforma — o usuário vê o arquivo sem precisar baixá-lo, agilizando a conferência.</p></div></div>
+    <div class="fc"><div class="fi ir">🗑️</div><div><h4>Exclusão segura</h4><p>Remoção com confirmação obrigatória em diálogo modal — protege contra exclusões acidentais de documentos importantes e irreversíveis.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- LOCAIS -->
+<div class="sec" id="s-locais">
+  <div class="sec-lbl">Configuração</div>
+  <div class="sec-title">🏥 Locais e Setores</div>
+  <div class="sec-desc">Módulo para configurar a estrutura institucional que sustenta toda a operação — as instituições de saúde onde os profissionais atuam e seus departamentos internos (setores). Essa hierarquia (Instituição → Setor) é usada como filtro base em todos os outros módulos: pagamentos, planejamento, fechamento, relatórios e pendências. Um cadastro correto aqui garante filtros precisos em toda a plataforma.</div>
+  <div class="ss"><img src="screenshots/locals.png" alt="Locais"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">🔍</div><div><h4>Busca por instituição</h4><p>Campo de pesquisa que filtra a lista em tempo real por nome da instituição — útil para bases com muitas unidades cadastradas de diferentes regiões ou tipos.</p></div></div>
+    <div class="fc"><div class="fi it">🏥</div><div><h4>Cards por instituição</h4><p>Cada instituição em um card com nome e ações (editar/excluir). Expansão revela a lista de todos os setores vinculados com suas informações e opções de edição.</p></div></div>
+    <div class="fc"><div class="fi ig">✏️</div><div><h4>Edição de instituição</h4><p>Modal com todos os campos cadastrais da instituição para atualização — nome, tipo, dados de contato e demais configurações da unidade.</p></div></div>
+    <div class="fc"><div class="fi io">✏️</div><div><h4>Edição inline de setores</h4><p>Os setores são editados diretamente na linha da tabela sem abrir modal separado — agiliza ajustes de nomenclatura e dados dos departamentos.</p></div></div>
+    <div class="fc"><div class="fi ip">🔽</div><div><h4>Expansão de setores</h4><p>Clique no card da instituição para expandir todos os setores vinculados com suas informações e opções de gestão individual.</p></div></div>
+    <div class="fc"><div class="fi ir">🗑️</div><div><h4>Exclusão com confirmação</h4><p>Remoção de instituições com diálogo obrigatório — previne exclusão acidental de unidades com dados históricos associados e de difícil recuperação.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- USUÁRIOS -->
+<div class="sec" id="s-usuarios">
+  <div class="sec-lbl">Configuração</div>
+  <div class="sec-title">👥 Gestão de Usuários</div>
+  <div class="sec-desc">Módulo para gerenciar a equipe que opera a plataforma Humana. Diferente dos profissionais de saúde (gerenciados no módulo "Profissionais"), os usuários são gestores, coordenadores e equipe financeira que utilizam o sistema no dia a dia. Permite criar novos acessos, definir credenciais e controlar o status ativo/inativo de cada membro da equipe.</div>
+  <div class="ss"><img src="screenshots/user.png" alt="Usuários"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">🔍</div><div><h4>Busca multicritério</h4><p>Pesquisa simultânea por nome, e-mail ou CRM em um único campo — localiza qualquer usuário independentemente da informação disponível.</p></div></div>
+    <div class="fc"><div class="fi ig">➕</div><div><h4>Criar usuário</h4><p>Modal completo: nome, sobrenome, e-mail, CPF, senha inicial, CRM (quando aplicável), telefone e tipo de pessoa (Física ou Jurídica). Validações em todos os campos obrigatórios.</p></div></div>
+    <div class="fc"><div class="fi io">🔘</div><div><h4>Ativar / Inativar</h4><p>Toggle de status com diálogo de confirmação antes de aplicar — evita remoção acidental de acessos ativos e garante que o gestor esteja ciente do impacto da ação.</p></div></div>
+    <div class="fc"><div class="fi iz">📋</div><div><h4>Listagem gerenciável</h4><p>Tabela com nome, e-mail, CRM e status de cada usuário. Ações disponíveis por linha para ajustes rápidos sem precisar acessar telas separadas.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PERFIL -->
+<div class="sec" id="s-perfil">
+  <div class="sec-lbl">Conta</div>
+  <div class="sec-title">👤 Meu Perfil</div>
+  <div class="sec-desc">Área pessoal acessível pelo ícone no menu, onde o usuário logado atualiza seus dados de contato e altera a senha. O sistema valida os critérios de segurança da nova senha em tempo real — cada requisito muda de vermelho para verde conforme é atendido, guiando o usuário sem necessidade de tentativa e erro.</div>
+  <div class="ss"><img src="screenshots/profile.png" alt="Perfil"/></div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">📸</div><div><h4>Foto de perfil</h4><p>Upload com pré-visualização imediata. A foto é exibida no menu de todas as telas após salvar — personalizando a experiência e facilitando a identificação do usuário logado.</p></div></div>
+    <div class="fc"><div class="fi it">👤</div><div><h4>Dados de contato</h4><p>Edição de nome completo, telefone (máscara + validação) e e-mail. Cada alteração é salva individualmente com confirmação visual de sucesso.</p></div></div>
+    <div class="fc"><div class="fi ig">🔑</div><div><h4>Alteração de senha</h4><p>Fluxo com três campos: senha atual (confirma identidade), nova senha e confirmação. Impede a troca sem a senha correta atual.</p></div></div>
+    <div class="fc"><div class="fi io">✅</div><div><h4>Indicadores de senha em tempo real</h4><p>Quatro critérios com indicadores visuais (vermelho → verde): 8+ caracteres, letras, números e caracteres especiais — cada um atualiza conforme o usuário digita.</p></div></div>
+    <div class="fc"><div class="fi iz">👁️</div><div><h4>Toggle de visibilidade</h4><p>Ícone de olho em todos os campos de senha — alterna entre ocultar e mostrar, eliminando erros por digitação invisível sem comprometer a segurança.</p></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- TRANSVERSAIS -->
+<div class="sec" id="s-transversal">
+  <div class="sec-lbl">Plataforma</div>
+  <div class="sec-title">⚙️ Recursos em Toda a Plataforma</div>
+  <div class="sec-desc">Além das funcionalidades específicas de cada módulo, a Humana oferece um conjunto de recursos que funcionam de forma consistente em todas as telas — garantindo uma experiência coerente, segura e eficiente em qualquer parte do sistema.</div>
+  <div class="fcg">
+    <div class="fc"><div class="fi ib">🏥</div><div><h4>Filtro hierárquico global</h4><p>Seleção encadeada Instituição → Setor disponível em todos os módulos. Ao selecionar a instituição, apenas os setores vinculados são listados — elimina erros de seleção.</p></div></div>
+    <div class="fc"><div class="fi it">📅</div><div><h4>Competência como contexto</h4><p>O seletor de mês/ano controla todos os dados da tela. Alterar a competência atualiza cards, tabelas e gráficos simultaneamente — sem recarregar a página.</p></div></div>
+    <div class="fc"><div class="fi io">🎨</div><div><h4>Código de cores padronizado</h4><p>Verde = Pago/Ativo · Ciano = Liberado · Laranja = Pendente/Planejado · Vermelho = Erro/Inativo · Azul = Informação. Consistente em todos os módulos.</p></div></div>
+    <div class="fc"><div class="fi ig">💬</div><div><h4>Notificações de feedback</h4><p>Toasts automáticos de sucesso e erro após cada ação (salvar, criar, excluir, importar). O usuário sempre sabe o resultado de cada operação sem verificação manual.</p></div></div>
+    <div class="fc"><div class="fi iz">📱</div><div><h4>Design responsivo</h4><p>Interface adaptada a desktop, tablet e mobile com Vuetify 3. Layouts ajustam colunas e tamanhos automaticamente para qualquer resolução de tela.</p></div></div>
+    <div class="fc"><div class="fi ip">🔢</div><div><h4>Máscaras automáticas</h4><p>CPF, CNPJ, CEP, telefone, valores monetários e datas formatados enquanto o usuário digita — previne erros de formato sem exigir atenção extra.</p></div></div>
+    <div class="fc"><div class="fi ir">🛡️</div><div><h4>Confirmação em ações destrutivas</h4><p>Exclusões, inativações e fechamentos sempre exigem confirmação em modal antes de executar — protege contra cliques acidentais em ações irreversíveis.</p></div></div>
+    <div class="fc"><div class="fi ib">🔐</div><div><h4>JWT + controle de permissões (CASL)</h4><p>Autenticação sem estado com tokens seguros. Permissões por perfil controlam o que cada tipo de usuário pode ver e executar na plataforma.</p></div></div>
+    <div class="fc"><div class="fi it">☁️</div><div><h4>Armazenamento cloud seguro</h4><p>Arquivos e documentos em AWS S3 com acesso via URL assinada de tempo limitado — nunca expostos diretamente ao navegador, mesmo que a URL seja compartilhada.</p></div></div>
+    <div class="fc"><div class="fi ig">⏳</div><div><h4>Estados de carregamento</h4><p>Indicadores visuais de loading em todas as operações assíncronas — o usuário sabe que o sistema está processando sem ficar em dúvida se travou.</p></div></div>
+    <div class="fc"><div class="fi io">🔄</div><div><h4>Limpar filtros com 1 clique</h4><p>Botão de reset em todas as telas com filtros — retorna ao estado padrão de uma vez, sem precisar limpar campo por campo manualmente.</p></div></div>
+    <div class="fc"><div class="fi iz">📊</div><div><h4>Paginação configurável</h4><p>Seletor de 5/10/20/50 itens por página com indicador "1-10 de 347" e navegação por botões — controla a carga de dados conforme a necessidade do usuário.</p></div></div>
+  </div>
+</div>
+
+<!-- RODAPÉ -->
+<div style="margin-top:72px;background:#0f172a;border-radius:16px;padding:36px;text-align:center;color:rgba(255,255,255,.5)">
+  <div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:5px;letter-spacing:-1px">Humana</div>
+  <div style="font-size:14px;margin-bottom:4px">Plataforma de Gestão de Profissionais de Saúde</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.25);margin-top:8px">Relatório de Funcionalidades · Abril / 2026 · v1.0</div>
+</div>
+
+</div><!-- /relatorio -->
+
+<script>
+(function(){
+  const BTN_LABEL = '⬇ Baixar PDF';
+  const BTN_BUSY = 'Gerando PDF… aguarde';
+  let pdfEmAndamento = false;
+
+  function prepararCloneParaPdf(clonedDoc){
+    const root = clonedDoc.getElementById('relatorio');
+    if(!root) return;
+    const coverName = root.querySelector('.cover-name');
+    if(coverName){
+      coverName.style.background = 'none';
+      coverName.style.webkitBackgroundClip = 'unset';
+      coverName.style.backgroundClip = 'unset';
+      coverName.style.webkitTextFillColor = '#ffffff';
+      coverName.style.color = '#ffffff';
+    }
+    root.querySelectorAll('.sec, .ss, .cover, .metrics').forEach(function(el){
+      el.style.breakInside = 'avoid';
+      el.style.pageBreakInside = 'avoid';
+    });
+  }
+
+  window.gerarPDF = function gerarPDF(){
+    if(pdfEmAndamento) return;
+
+    const btn = document.getElementById('btn-pdf');
+    const topbar = document.querySelector('.topbar');
+    const el = document.getElementById('relatorio');
+
+    if(!btn || !el){
+      alert('Não foi possível localizar o conteúdo do relatório.');
+      return;
+    }
+
+    if(typeof html2pdf === 'undefined'){
+      alert('O gerador de PDF não carregou (rede ou bloqueador). Use Ctrl+P (Cmd+P) e escolha «Salvar como PDF».');
+      window.print();
+      return;
+    }
+
+    pdfEmAndamento = true;
+    const yScroll = window.scrollY;
+    window.scrollTo(0, 0);
+
+    btn.textContent = BTN_BUSY;
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    if(topbar) topbar.style.display = 'none';
+
+    const scale = Math.min(2, Math.max(1.25, (window.devicePixelRatio || 1) * 1.15));
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: 'Humana-Relatorio-Funcionalidades.pdf',
+      image: { type: 'jpeg', quality: 0.92 },
+      html2canvas: {
+        scale: scale,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        backgroundColor: '#f4f6f9',
+        onclone: prepararCloneParaPdf
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+      pagebreak: { mode: ['css', 'legacy'], avoid: ['.ss', '.cover', '.metrics'] }
+    };
+
+    function executar(){
+      html2pdf()
+        .set(opt)
+        .from(el)
+        .save()
+        .then(function(){
+          window.scrollTo(0, yScroll);
+        })
+        .catch(function(err){
+          console.error('gerarPDF:', err);
+          alert('Não foi possível gerar o PDF (memória ou rede). Tente fechar outras abas, recarregar a página, ou use Ctrl+P → Salvar como PDF.');
+          window.scrollTo(0, yScroll);
+        })
+        .finally(function(){
+          if(topbar) topbar.style.display = '';
+          btn.textContent = BTN_LABEL;
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          pdfEmAndamento = false;
+        });
+    }
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(executar);
+    });
+  };
+
+  document.getElementById('btn-pdf').addEventListener('click', function(e){
+    e.preventDefault();
+    gerarPDF();
+  });
+})();
+</script>
+</body>
+</html>

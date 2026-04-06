@@ -1,0 +1,28 @@
+# Development dependencies
+-r requirements.txt
+
+# Code formatting
+black==24.10.0
+isort==5.13.2
+
+# Linting
+ruff==0.8.4
+flake8==7.1.1
+
+# Type checking
+mypy==1.13.0
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.27.2
+
+# Coverage
+pytest-cov==6.0.0
+
+# Pre-commit hooks
+pre-commit==4.0.1
+pwdlib[argon2]
+pyjwt
+slowapi
+uuid-utils

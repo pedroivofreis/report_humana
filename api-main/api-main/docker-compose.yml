@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: humana-api-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-places_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - humana_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - humana-network
+
+  localstack:
+    image: localstack/localstack:3.0.0
+    container_name: humana-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - LAMBDA_EXECUTOR=docker
+    volumes:
+      - ./localstack_init:/etc/localstack/init/ready.d
+      - localstack_data:/var/lib/localstack
+    networks:
+      - humana-network
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: humana-api-app
+    environment:
+      # Database Configuration
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-places_db}
+
+      # Application Configuration
+      PROJECT_NAME: ${PROJECT_NAME:-Humana API}
+      API_STR: ${API_STR:-/api}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-here-change-in-production}
+      API_KEY: ${API_KEY:-your-api-key-here-change-in-production}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-11520}
+
+      # Logging Configuration
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SQLALCHEMY_ECHO: ${SQLALCHEMY_ECHO:-false}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./main.py:/app/main.py
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running migrations...' &&
+        alembic upgrade head &&
+        echo 'Starting application...' &&
+        uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      "
+    networks:
+      - humana-network
+    restart: unless-stopped
+
+volumes:
+  humana_postgres_data:
+    driver: local
+  localstack_data:
+    driver: local
+
+networks:
+  humana-network:
+    driver: bridge
+

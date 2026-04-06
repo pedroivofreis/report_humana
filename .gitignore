@@ -1,0 +1,32 @@
+# dependencies & build
+node_modules/
+.next/
+out/
+
+# env / local
+.env
+.env*.local
+
+# Vercel
+.vercel
+
+# OS / IDE
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# projeto local pesado (cópia do app Vue)
+web-app-main/
+
+# zips de backup
+*.zip
+
+# ferramentas locais
+.claude/
+
+# credenciais de automação (use cópia local; não commitar)
+capture-screenshots.js
+
+# dump grande opcional
+screenshots-data.js

@@ -14,7 +14,7 @@ const replacements = [
   ['planning.png',     'Screenshot: Módulo Planejado'],
   ['completed.png',    'Screenshot: Plantões Realizados'],
   ['timesheet.png',    'Screenshot: Fechamento de Ponto'],
-  ['import-batch.png', 'Screenshot: Importação em Lote'],
+  ['import-batch.png', 'Screenshot: Status das Importações'],
   ['pending.png',      'Screenshot: Análise de Pendências'],
   ['report.png',       'Screenshot: Módulo de Relatórios'],
   ['wallet.png',       'Screenshot: Carteira de Profissionais'],

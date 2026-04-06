@@ -227,7 +227,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <div class="sec-title">💳 Pagamentos</div>
   <div class="sec-desc">Módulo central do ciclo financeiro. Exibe todos os pagamentos liberados e prontos para processamento, com filtros avançados para localizar registros específicos e confirmação em lote com um único clique. O sistema diferencia automaticamente folha de pagamento regular de custos operacionais avulsos, e calcula o valor a pagar com base no saldo de carteira e nas regras contratuais de cada profissional.</div>
   <div class="ss"><img src="screenshots/payments.png" alt="Pagamentos"/></div>
-  <div class="callout">💡 <div><strong>Ciclo de pagamento na plataforma:</strong> Planejado → Realizado → Fechamento → Liberado → <strong>Pago</strong>. Apenas registros com status "Liberado" aparecem aqui para confirmação final.</div></div>
+  <div class="callout">💡 <div><strong>Ciclo de pagamento na plataforma:</strong> Planejado → Realizado → Fechamento → Liberado → <strong>Pago</strong>. Nesta tela entram os registros já liberados para você confirmar o pagamento final.</div></div>
   <div class="fcg">
     <div class="fc"><div class="fi io">📊</div><div><h4>Cards de resumo executivo</h4><p>Destaques no topo da tela com: quantidade de profissionais com pagamento pendente e percentual sobre o total; valor total a pagar versus valor em aberto — visão instantânea do passivo financeiro.</p></div></div>
     <div class="fc"><div class="fi ib">🔍</div><div><h4>Filtro por profissional</h4><p>Autocomplete que busca simultaneamente por nome e CRM — localiza qualquer profissional com poucos caracteres, mesmo em bases com centenas de registros.</p></div></div>
@@ -235,11 +235,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
     <div class="fc"><div class="fi ir">⚠️</div><div><h4>Filtro por pendência</h4><p>Exibe apenas profissionais com pendências abertas (dados bancários incompletos, documentação faltando etc.), agilizando a resolução antes do processamento.</p></div></div>
     <div class="fc"><div class="fi iz">📅</div><div><h4>Filtro de competência</h4><p>Visualize pagamentos de qualquer período histórico — não apenas o mês atual. Essencial para reprocessamentos, auditorias e consultas retroativas.</p></div></div>
     <div class="fc"><div class="fi ig">☑️</div><div><h4>Seleção múltipla e lote</h4><p>Checkboxes individuais por linha com botão "Concluir Pagamentos" que processa todos os selecionados de uma só vez, registrando a data exata via seletor de calendário.</p></div></div>
-    <div class="fc"><div class="fi ip">👁️</div><div><h4>Detalhes expandíveis</h4><p>Cada linha expande para mostrar detalhes completos: valor bruto, descontos, tipo de pagamento, referência contratual e histórico de processamento.</p></div></div>
-    <div class="fc"><div class="fi io">🏷️</div><div><h4>Chips de status e tipo</h4><p>Identificação visual imediata: tipo em azul (Folha) ou roxo (Operacional), status em ciano (Liberado), verde (Pago) ou laranja (Pendente).</p></div></div>
+    <div class="fc"><div class="fi io">🏷️</div><div><h4>Chips de tipo</h4><p>Cada linha exibe apenas o <strong>tipo</strong> do pagamento, com cores distintas: <strong>Folha de ponto</strong> ou <strong>Custo operacional</strong> — não há chips de status nesta listagem.</p></div></div>
   </div>
   <div class="pills">
-    <span class="pill pt">Liberado</span><span class="pill pg">Pago</span><span class="pill po">Pendente</span><span class="pill pb">Folha de Pagamento</span><span class="pill pp">Custo Operacional</span>
+    <span class="pill pb">Folha de ponto</span><span class="pill pp">Custo operacional</span>
   </div>
 </div>
 
@@ -249,15 +248,15 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <div class="sec" id="s-financeiro">
   <div class="sec-lbl">Financeiro</div>
   <div class="sec-title">💰 Relatório Financeiro</div>
-  <div class="sec-desc">Módulo de análise financeira detalhada que cruza plantões realizados com os valores de pagamento correspondentes. Apresenta visão completa por profissional, local e setor — diferenciando folha de pagamento de custos operacionais manuais. Permite ao financeiro ter controle total sobre o que foi planejado, quanto está liberado e quanto foi pago em cada competência, com possibilidade de lançar e excluir registros diretamente pela interface.</div>
+  <div class="sec-desc">Módulo de análise financeira detalhada que cruza plantões realizados com os valores de pagamento correspondentes. Apresenta visão completa por profissional, local e setor — diferenciando folha de pagamento de custos operacionais manuais. Permite lançar custos operacionais e <strong>excluir lançamentos individualmente</strong>, sempre com confirmação obrigatória, preservando integridade e histórico financeiro auditável.</div>
   <div class="ss"><img src="screenshots/financial.png" alt="Financeiro"/></div>
   <div class="fcg">
     <div class="fc"><div class="fi ib">📊</div><div><h4>Indicadores no topo</h4><p>Três cards fixos com: plantões planejados e valor total; quantidade e percentual dos liberados; quantidade e percentual dos pagos — atualizam conforme os filtros aplicados.</p></div></div>
     <div class="fc"><div class="fi it">🔍</div><div><h4>Filtros avançados</h4><p>Combinação de profissional (autocomplete), local hierárquico (instituição → setor), status (Todos / Liberado / Pago / Parcialmente pago) e competência.</p></div></div>
     <div class="fc"><div class="fi ig">✏️</div><div><h4>Lançamento de custo operacional</h4><p>Modal "Lançar Pagamento" para registrar despesas avulsas: beneficiário (profissional cadastrado ou nome externo), valor em R$, data, local e descrição livre.</p></div></div>
-    <div class="fc"><div class="fi ir">🗑️</div><div><h4>Exclusão de lançamentos</h4><p>Cada custo operacional pode ser excluído individualmente com confirmação obrigatória — mantendo a integridade e o histórico financeiro auditável.</p></div></div>
+    <div class="fc"><div class="fi" style="background:#ffeee8;color:#5c4033">🗑️</div><div><h4>Exclusão de lançamentos</h4><p>Cada custo operacional pode ser excluído individualmente com confirmação obrigatória — mantendo a integridade e o histórico financeiro auditável.</p></div></div>
     <div class="fc"><div class="fi ip">👁️</div><div><h4>Detalhes de custos operacionais</h4><p>Modal dedicado para visualizar todos os campos de cada custo lançado: data, valor, responsável pelo lançamento e justificativa.</p></div></div>
-    <div class="fc"><div class="fi io">🏷️</div><div><h4>Separação contábil por tipo</h4><p>Chips distintos para Custo Operacional e Folha de Pagamento em cada linha, facilitando a separação contábil e a conciliação com o sistema de gestão financeira.</p></div></div>
+    <div class="fc"><div class="fi io">🏷️</div><div><h4>Separação contábil por tipo</h4><p>Chips distintos para <strong>Custo operacional</strong> e <strong>Folha de ponto</strong> em cada linha, facilitando a separação contábil e a conciliação com o sistema de gestão financeira.</p></div></div>
   </div>
 </div>
 
@@ -274,7 +273,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
     <div class="fc"><div class="fi ib">✅</div><div><h4>Realizado — execução confirmada</h4><p>Quantidade de plantões confirmados e percentual de aderência ao planejamento. Reflete diretamente a eficiência da escala no período.</p></div></div>
     <div class="fc"><div class="fi io">🔔</div><div><h4>Pendentes — aguardando ação</h4><p>Plantões planejados que ainda não foram confirmados como realizados nem marcados como cancelados. Cada item requer resolução pela equipe.</p></div></div>
     <div class="fc"><div class="fi ir">⚡</div><div><h4>Divergências — inconsistências</h4><p>Contradições entre planejamento e dados de fechamento importados. Cada divergência é listada individualmente para resolução manual pelo gestor.</p></div></div>
-    <div class="fc"><div class="fi it">📤</div><div><h4>Importação de relatório</h4><p>Upload de arquivo financeiro externo (Excel/CSV) que é processado automaticamente e cruzado com o planejamento — alimentando os dados sem digitação manual.</p></div></div>
+    <div class="fc"><div class="fi it">📤</div><div><h4>Importação de relatório</h4><p>Upload de arquivo financeiro externo <strong>(Excel/CSV do Pega Plantão)</strong> que é processado automaticamente e cruzado com o planejamento — alimentando os dados sem digitação manual.</p></div></div>
     <div class="fc"><div class="fi iz">👁️</div><div><h4>Detalhamento por linha</h4><p>Expansão de cada registro para visualizar: CRM, local, setor, valor a pagar, competência e status atual — sem precisar sair da tela.</p></div></div>
   </div>
 </div>
@@ -290,7 +289,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <div class="fcg">
     <div class="fc"><div class="fi ib">📊</div><div><h4>Cards de indicadores</h4><p>Totais de Planejados, Liberados (com %) e Pagos (com %) para o período filtrado — contexto imediato para o volume de dados exibido na tabela.</p></div></div>
     <div class="fc"><div class="fi ig">💵</div><div><h4>Valores brutos e líquidos</h4><p>Para cada plantão: valor bruto contratado e valor líquido após descontos aplicáveis — permitindo auditoria completa da composição dos valores pagos.</p></div></div>
-    <div class="fc"><div class="fi it">⚖️</div><div><h4>Saldo acumulado</h4><p>Coluna de saldo que consolida o total acumulado de cada profissional no período — diferença entre o realizado e o efetivamente pago até a data.</p></div></div>
+    <div class="fc"><div class="fi it">⚖️</div><div><h4>Saldo acumulado</h4><p>Coluna que consolida, por profissional no período, o saldo calculado como <strong>valor bruto menos valor líquido</strong> (Bruto − Líquido). Esse saldo representa o que a <strong>empresa retém e lucra</strong> sobre cada plantão — a margem da operação em relação ao valor pago ao profissional.</p></div></div>
     <div class="fc"><div class="fi io">⏱️</div><div><h4>Horas trabalhadas</h4><p>Carga horária de cada plantão em horas, facilitando o controle de jornada e o cálculo de banco de horas quando aplicável ao contrato.</p></div></div>
     <div class="fc"><div class="fi ip">📥</div><div><h4>Exportação para Excel</h4><p>Gera arquivo XLSX completo com todos os plantões do período: profissional, local, setor, datas, horas, valores e status — pronto para análise contábil ou conciliação.</p></div></div>
     <div class="fc"><div class="fi iz">🔍</div><div><h4>Filtros completos</h4><p>Combinação de profissional (autocomplete), local hierárquico, status e competência — isolando exatamente o conjunto de dados necessário para cada análise.</p></div></div>
@@ -306,15 +305,18 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <div class="sec-title">🕐 Fechamento de Ponto</div>
   <div class="sec-desc">Módulo responsável pelo processo completo de fechamento mensal de folha. Centraliza a importação dos arquivos físicos de ponto digitalizados (JPG ou PDF), o acompanhamento dos registros por profissional e setor, e a execução do fechamento oficial com cálculo automático de valores. Cada operação é rastreada com data, responsável e status — criando histórico auditável de todo o processo.</div>
   <div class="ss"><img src="screenshots/timesheet.png" alt="Fechamento"/></div>
+  <div class="col-box" style="margin-bottom:26px;background:linear-gradient(135deg,#f0fdfa 0%,#ecfeff 100%);border:1px solid #99f6e4;box-shadow:var(--sh)">
+    <div class="col-lbl" style="color:#0f766e">Cálculo automático × consultas realizadas</div>
+    <p style="font-size:14px;color:var(--g700);line-height:1.65;margin:0">O <strong>cálculo automático</strong> no fechamento entra em destaque para profissionais com <strong>valores diferenciados conforme a quantidade de consultas (atendimentos)</strong> realizados no período: nesses casos, o sistema usa o volume de consultas informado no fluxo para <strong>apurar o valor devido</strong>, sem recálculo manual linha a linha.</p>
+  </div>
   <div class="fcg">
     <div class="fc"><div class="fi ib">📋</div><div><h4>Lista com status coloridos</h4><p>Tabela de todos os registros de fechamento com competência, profissional, CRM, local, setor e status atual em chips coloridos — visão rápida do estado de cada registro.</p></div></div>
     <div class="fc"><div class="fi io">🔍</div><div><h4>Filtros de navegação</h4><p>Profissional, local, setor e competência (mês/ano) — localiza rapidamente registros específicos em operações com grande volume de profissionais e locais cadastrados.</p></div></div>
-    <div class="fc"><div class="fi it">📤</div><div><h4>Importação em lote de ponto</h4><p>Modal onde o responsável seleciona local e setor e faz upload de múltiplos arquivos simultaneamente (JPG, JPEG, PDF sem limite de quantidade). Processamento assíncrono no servidor.</p></div></div>
+    <div class="fc"><div class="fi it">📤</div><div><h4>Importação em lote da folha de ponto</h4><p>Modal onde o responsável seleciona local e setor e faz upload de múltiplos arquivos simultaneamente (JPG, JPEG, PDF sem limite de quantidade). Processamento assíncrono no servidor.</p></div></div>
     <div class="fc"><div class="fi ig">🔒</div><div><h4>Realizar fechamento mensal</h4><p>Fluxo guiado: seleção de local/setor → quantidade de atendimentos → confirmação do valor base → seleção da competência. O sistema exibe automaticamente os plantões previstos para conferência antes de confirmar.</p></div></div>
     <div class="fc"><div class="fi ip">👁️</div><div><h4>Detalhes por registro</h4><p>Acesso aos dados completos de cada fechamento: datas, valores calculados, profissional responsável e histórico de mudanças de status.</p></div></div>
-    <div class="fc"><div class="fi iz">🗂️</div><div><h4>Rastreabilidade completa</h4><p>Cada fechamento registra automaticamente o usuário responsável pela operação, a data de execução e o status final — histórico imutável e auditável.</p></div></div>
   </div>
-  <div class="callout">📋 <div><strong>Fluxo padrão:</strong> (1) Importar arquivos de ponto do mês → (2) Verificar registros na lista → (3) Executar "Realizar Fechamento" com dados do período → (4) Acompanhar processamento na tela de Importação em Lote.</div></div>
+  <div class="callout">📋 <div><strong>Fluxo padrão:</strong> (1) Importar arquivos de ponto do mês → (2) Verificar registros na lista → (3) Executar "Realizar Fechamento" com dados do período → (4) Acompanhar processamento em <strong>Status das Importações</strong>.</div></div>
 </div>
 
 <div class="divider"></div>
@@ -322,12 +324,12 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <!-- IMPORTAÇÃO -->
 <div class="sec" id="s-importacao">
   <div class="sec-lbl">Operacional</div>
-  <div class="sec-title">📦 Importação em Lote</div>
+  <div class="sec-title">📦 Status das Importações</div>
   <div class="sec-desc">Tela dedicada ao monitoramento de todas as importações de arquivos de ponto, com histórico completo e status detalhado de cada operação. Permite acompanhar o processamento de importações grandes, identificar arquivos com erro e obter a mensagem de causa para diagnóstico e reenvio.</div>
-  <div class="ss"><img src="screenshots/import-batch.png" alt="Importação em Lote"/></div>
+  <div class="ss"><img src="screenshots/import-batch.png" alt="Status das Importações"/></div>
   <div class="fcg">
-    <div class="fc"><div class="fi ib">📋</div><div><h4>Histórico completo</h4><p>Listagem de todas as importações com data/hora, nome do arquivo e status — ordenadas da mais recente para a mais antiga para facilitar o acompanhamento imediato.</p></div></div>
-    <div class="fc"><div class="fi ig">✅</div><div><h4>Status de sucesso</h4><p>Chip verde indica que o arquivo foi processado, validado e os dados foram inseridos corretamente no sistema — sem necessidade de ação adicional.</p></div></div>
+    <div class="fc"><div class="fi ib">📋</div><div><h4>Histórico completo</h4><p>Listagem de todas as importações — inclusive as que ainda não foram processadas — com data/hora, nome do arquivo e status, ordenadas da mais recente para a mais antiga para facilitar o acompanhamento imediato.</p></div></div>
+    <div class="fc"><div class="fi io">⏳</div><div><h4>Em processamento</h4><p>Indica importações que ainda não foram processadas, acompanhadas da data e hora do envio.</p></div></div>
     <div class="fc"><div class="fi ir">❌</div><div><h4>Diagnóstico de erros</h4><p>Arquivos com falha exibem o tipo de erro (processamento, leitura de dados etc.) e mensagem explicativa para orientar a correção e o reenvio do arquivo.</p></div></div>
     <div class="fc"><div class="fi ip">🔍</div><div><h4>Validar detalhes</h4><p>Botão em cada linha para acessar os detalhes completos da importação: dados extraídos, campos com erro e observações do sistema de processamento.</p></div></div>
   </div>

@@ -8,7 +8,6 @@ let html = fs.readFileSync(REPORT, 'utf8');
 const replacements = [
   ['login.png',        'Screenshot: Tela de Login'],
   ['indicator.png',    'Screenshot: Dashboard de Indicadores'],
-  ['dashboard.png',    'Screenshot: Home / Dashboard'],
   ['payments.png',     'Screenshot: Módulo de Pagamentos'],
   ['financial.png',    'Screenshot: Relatório Financeiro'],
   ['planning.png',     'Screenshot: Módulo Planejado'],

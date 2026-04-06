@@ -147,9 +147,9 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <nav class="topbar-nav">
     <a href="#s-login">Login</a>
     <a href="#s-indicadores">Indicadores</a>
-    <a href="#s-pagamentos">Pagamentos</a>
-    <a href="#s-financeiro">Financeiro</a>
     <a href="#s-planejado">Planejado</a>
+    <a href="#s-financeiro">Financeiro</a>
+    <a href="#s-pagamentos">Pagamentos</a>
     <a href="#s-plantoes">Plantões</a>
     <a href="#s-fechamento">Fechamento</a>
     <a href="#s-importacao">Importações</a>
@@ -198,9 +198,9 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
   <div class="toc-grid">
     <a class="toc-card" href="#s-login"><span style="font-size:22px">🔐</span><div><strong>Login</strong><span>Autenticação segura por CPF</span></div></a>
     <a class="toc-card" href="#s-indicadores"><span style="font-size:22px">📊</span><div><strong>Indicadores</strong><span>Dashboard de performance financeira</span></div></a>
-    <a class="toc-card" href="#s-pagamentos"><span style="font-size:22px">💳</span><div><strong>Pagamentos</strong><span>Liberação e conclusão em lote</span></div></a>
-    <a class="toc-card" href="#s-financeiro"><span style="font-size:22px">💰</span><div><strong>Relatório Financeiro</strong><span>Custos, receitas e lançamentos</span></div></a>
     <a class="toc-card" href="#s-planejado"><span style="font-size:22px">📅</span><div><strong>Planejado</strong><span>Plantões previstos vs. realizados</span></div></a>
+    <a class="toc-card" href="#s-financeiro"><span style="font-size:22px">💰</span><div><strong>Relatório Financeiro</strong><span>Custos, receitas e lançamentos</span></div></a>
+    <a class="toc-card" href="#s-pagamentos"><span style="font-size:22px">💳</span><div><strong>Pagamentos</strong><span>Liberação e conclusão em lote</span></div></a>
     <a class="toc-card" href="#s-plantoes"><span style="font-size:22px">✅</span><div><strong>Plantões Realizados</strong><span>Registros confirmados + exportação XLSX</span></div></a>
     <a class="toc-card" href="#s-fechamento"><span style="font-size:22px">🕐</span><div><strong>Fechamento de Ponto</strong><span>Importação e fechamento mensal</span></div></a>
     <a class="toc-card" href="#s-importacao"><span style="font-size:22px">📥</span><div><strong>Status das importações</strong><span>Histórico e monitoramento</span></div></a>
@@ -255,24 +255,19 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 
 <div class="divider"></div>
 
-<!-- PAGAMENTOS -->
-<div class="sec" id="s-pagamentos">
-  <div class="sec-lbl">Financeiro</div>
-  <div class="sec-title">💳 Pagamentos</div>
-  <div class="sec-desc">Módulo central do ciclo financeiro. Exibe todos os pagamentos liberados e prontos para processamento, com filtros avançados para localizar registros específicos e confirmação em lote com um único clique. O sistema diferencia automaticamente folha de pagamento regular de custos operacionais avulsos, e calcula o valor a pagar com base no saldo de carteira e nas regras contratuais de cada profissional.</div>
-  <div class="ss"><img src="screenshots/payments.png" alt="Pagamentos"/></div>
-  <div class="callout">💡 <div><strong>Ciclo de pagamento na plataforma:</strong> Planejado → Realizado → Fechamento → Liberado → <strong>Pago</strong>. Nesta tela entram os registros já liberados para você confirmar o pagamento final.</div></div>
+<!-- PLANEJADO -->
+<div class="sec" id="s-planejado">
+  <div class="sec-lbl">Planejamento</div>
+  <div class="sec-title">📅 Planejado</div>
+  <div class="sec-desc">Módulo de controle que compara plantões previstos com os realizados, identificando divergências e pendências que precisam de ação. Funciona como o radar operacional da gestão: mostra em tempo real onde a execução está alinhada com o planejamento e onde há gaps que precisam de atenção. Suporta importação do <strong>relatório financeiro exportado do Pega Plantão</strong> (Excel/CSV) para alimentar o planejamento de forma automatizada.</div>
+  <div class="ss"><img src="screenshots/planning.png" alt="Planejado"/></div>
   <div class="fcg">
-    <div class="fc"><div class="fi io">📊</div><div><h4>Cards de resumo executivo</h4><p>Destaques no topo da tela com: quantidade de profissionais com pagamento pendente e percentual sobre o total; valor total a pagar versus valor em aberto — visão instantânea do passivo financeiro.</p></div></div>
-    <div class="fc"><div class="fi ib">🔍</div><div><h4>Filtro por profissional</h4><p>Autocomplete que busca simultaneamente por nome e CRM — localiza qualquer profissional com poucos caracteres, mesmo em bases com centenas de registros.</p></div></div>
-    <div class="fc"><div class="fi it">📍</div><div><h4>Filtro por local</h4><p>Seleção de instituição para segmentar pagamentos por unidade. Essencial para operações multissite onde cada local tem gestores diferentes.</p></div></div>
-    <div class="fc"><div class="fi ir">⚠️</div><div><h4>Filtro por pendência</h4><p>Exibe apenas profissionais com pendências abertas (dados bancários incompletos, documentação faltando etc.), agilizando a resolução antes do processamento.</p></div></div>
-    <div class="fc"><div class="fi iz">📅</div><div><h4>Filtro de competência</h4><p>Visualize pagamentos de qualquer período histórico — não apenas o mês atual. Essencial para reprocessamentos, auditorias e consultas retroativas.</p></div></div>
-    <div class="fc"><div class="fi ig">☑️</div><div><h4>Seleção múltipla e lote</h4><p>Checkboxes individuais por linha com botão "Concluir Pagamentos" que processa todos os selecionados de uma só vez, registrando a data exata via seletor de calendário.</p></div></div>
-    <div class="fc"><div class="fi io">🏷️</div><div><h4>Chips de tipo</h4><p>Cada linha exibe apenas o <strong>tipo</strong> do pagamento, com cores distintas: <strong>Folha de ponto</strong> ou <strong>Custo operacional</strong> — não há chips de status nesta listagem.</p></div></div>
-  </div>
-  <div class="pills">
-    <span class="pill pb">Folha de ponto</span><span class="pill pp">Custo operacional</span>
+    <div class="fc"><div class="fi io">📋</div><div><h4>Planejado — baseline</h4><p>Total de plantões e valor financeiro previstos para o período. Referência central para todos os demais indicadores do módulo.</p></div></div>
+    <div class="fc"><div class="fi ib">✅</div><div><h4>Realizado — execução confirmada</h4><p>Quantidade de plantões confirmados e percentual de aderência ao planejamento. Reflete diretamente a eficiência da escala no período.</p></div></div>
+    <div class="fc"><div class="fi io">🔔</div><div><h4>Pendentes — aguardando ação</h4><p>Plantões planejados que ainda não foram confirmados como realizados nem marcados como cancelados. Cada item requer resolução pela equipe.</p></div></div>
+    <div class="fc"><div class="fi ir">⚡</div><div><h4>Divergências — inconsistências</h4><p>Contradições entre planejamento e dados de fechamento importados. Cada divergência é listada individualmente para resolução manual pelo gestor.</p></div></div>
+    <div class="fc"><div class="fi it">📤</div><div><h4>Importação de relatório do Pega Plantão</h4><p>O upload utiliza o <strong>arquivo financeiro exportado do Pega Plantão</strong> (Excel ou CSV): o sistema processa automaticamente, cruza com o planejamento e alimenta os dados <strong>sem digitação manual</strong> — é o formato nativo esperado dessa integração.</p></div></div>
+    <div class="fc"><div class="fi iz">👁️</div><div><h4>Detalhamento por linha</h4><p>Expansão de cada registro para visualizar: CRM, local, setor, valor a pagar, competência e status atual — sem precisar sair da tela.</p></div></div>
   </div>
 </div>
 
@@ -296,19 +291,24 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 
 <div class="divider"></div>
 
-<!-- PLANEJADO -->
-<div class="sec" id="s-planejado">
-  <div class="sec-lbl">Planejamento</div>
-  <div class="sec-title">📅 Planejado</div>
-  <div class="sec-desc">Módulo de controle que compara plantões previstos com os realizados, identificando divergências e pendências que precisam de ação. Funciona como o radar operacional da gestão: mostra em tempo real onde a execução está alinhada com o planejamento e onde há gaps que precisam de atenção. Suporta importação do <strong>relatório financeiro exportado do Pega Plantão</strong> (Excel/CSV) para alimentar o planejamento de forma automatizada.</div>
-  <div class="ss"><img src="screenshots/planning.png" alt="Planejado"/></div>
+<!-- PAGAMENTOS -->
+<div class="sec" id="s-pagamentos">
+  <div class="sec-lbl">Financeiro</div>
+  <div class="sec-title">💳 Pagamentos</div>
+  <div class="sec-desc">Módulo central do ciclo financeiro. Exibe todos os pagamentos liberados e prontos para processamento, com filtros avançados para localizar registros específicos e confirmação em lote com um único clique. O sistema diferencia automaticamente folha de pagamento regular de custos operacionais avulsos, e calcula o valor a pagar com base no saldo de carteira e nas regras contratuais de cada profissional.</div>
+  <div class="ss"><img src="screenshots/payments.png" alt="Pagamentos"/></div>
+  <div class="callout">💡 <div><strong>Ciclo de pagamento na plataforma:</strong> Planejado → Realizado → Fechamento → Liberado → <strong>Pago</strong>. Nesta tela entram os registros já liberados para você confirmar o pagamento final.</div></div>
   <div class="fcg">
-    <div class="fc"><div class="fi io">📋</div><div><h4>Planejado — baseline</h4><p>Total de plantões e valor financeiro previstos para o período. Referência central para todos os demais indicadores do módulo.</p></div></div>
-    <div class="fc"><div class="fi ib">✅</div><div><h4>Realizado — execução confirmada</h4><p>Quantidade de plantões confirmados e percentual de aderência ao planejamento. Reflete diretamente a eficiência da escala no período.</p></div></div>
-    <div class="fc"><div class="fi io">🔔</div><div><h4>Pendentes — aguardando ação</h4><p>Plantões planejados que ainda não foram confirmados como realizados nem marcados como cancelados. Cada item requer resolução pela equipe.</p></div></div>
-    <div class="fc"><div class="fi ir">⚡</div><div><h4>Divergências — inconsistências</h4><p>Contradições entre planejamento e dados de fechamento importados. Cada divergência é listada individualmente para resolução manual pelo gestor.</p></div></div>
-    <div class="fc"><div class="fi it">📤</div><div><h4>Importação de relatório do Pega Plantão</h4><p>O upload utiliza o <strong>arquivo financeiro exportado do Pega Plantão</strong> (Excel ou CSV): o sistema processa automaticamente, cruza com o planejamento e alimenta os dados <strong>sem digitação manual</strong> — é o formato nativo esperado dessa integração.</p></div></div>
-    <div class="fc"><div class="fi iz">👁️</div><div><h4>Detalhamento por linha</h4><p>Expansão de cada registro para visualizar: CRM, local, setor, valor a pagar, competência e status atual — sem precisar sair da tela.</p></div></div>
+    <div class="fc"><div class="fi io">📊</div><div><h4>Cards de resumo executivo</h4><p>Destaques no topo da tela com: quantidade de profissionais com pagamento pendente e percentual sobre o total; valor total a pagar versus valor em aberto — visão instantânea do passivo financeiro.</p></div></div>
+    <div class="fc"><div class="fi ib">🔍</div><div><h4>Filtro por profissional</h4><p>Autocomplete que busca simultaneamente por nome e CRM — localiza qualquer profissional com poucos caracteres, mesmo em bases com centenas de registros.</p></div></div>
+    <div class="fc"><div class="fi it">📍</div><div><h4>Filtro por local</h4><p>Seleção de instituição para segmentar pagamentos por unidade. Essencial para operações multissite onde cada local tem gestores diferentes.</p></div></div>
+    <div class="fc"><div class="fi ir">⚠️</div><div><h4>Filtro por pendência</h4><p>Exibe apenas profissionais com pendências abertas (dados bancários incompletos, documentação faltando etc.), agilizando a resolução antes do processamento.</p></div></div>
+    <div class="fc"><div class="fi iz">📅</div><div><h4>Filtro de competência</h4><p>Visualize pagamentos de qualquer período histórico — não apenas o mês atual. Essencial para reprocessamentos, auditorias e consultas retroativas.</p></div></div>
+    <div class="fc"><div class="fi ig">☑️</div><div><h4>Seleção múltipla e lote</h4><p>Checkboxes individuais por linha com botão "Concluir Pagamentos" que processa todos os selecionados de uma só vez, registrando a data exata via seletor de calendário.</p></div></div>
+    <div class="fc"><div class="fi io">🏷️</div><div><h4>Chips de tipo</h4><p>Cada linha exibe apenas o <strong>tipo</strong> do pagamento, com cores distintas: <strong>Folha de ponto</strong> ou <strong>Custo operacional</strong> — não há chips de status nesta listagem.</p></div></div>
+  </div>
+  <div class="pills">
+    <span class="pill pb">Folha de ponto</span><span class="pill pp">Custo operacional</span>
   </div>
 </div>
 

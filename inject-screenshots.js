@@ -23,6 +23,7 @@ const replacements = [
   ['user.png',         'Screenshot: Gestão de Usuários'],
   ['profile.png',      'Screenshot: Meu Perfil'],
   ['extra-consolidado-contabilidade-2025.png', 'Screenshot: Extra — Relatório consolidado contabilidade 2025'],
+  ['extra-comparador-pega-plantao-humana.png', 'Screenshot: Extra — Comparador Pega Plantão × Humana'],
   ['financial.png',    'Screenshot: Modal de Lançamento'],
   ['timesheet.png',    'Screenshot: Modal de Importação'],
   ['timesheet.png',    'Screenshot: Modal de Fechamento'],

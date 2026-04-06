@@ -90,7 +90,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 .sec-extras .sec-title{color:#4c1d95;letter-spacing:-.5px}
 .sec-extras .sec-desc{color:var(--g700)}
 .extra-card{background:#fff;border:1px solid var(--g200);border-radius:var(--r);padding:22px 22px 6px;margin-top:10px;box-shadow:var(--sh)}
+.extra-card + .extra-card{margin-top:24px}
 .extra-card .sub-title{margin-top:0}
+.extra-why{display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#f5f3ff,#eff6ff);border:1px solid #e9d5ff;border-radius:var(--rs);padding:14px 16px;margin-bottom:18px;font-size:13.5px;color:var(--g700);line-height:1.6}
+.extra-why .ew-ico{flex-shrink:0;width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px}
+.extra-why strong{color:#5b21b6}
 .toc-card-extras{border-color:#d8b4fe!important;background:linear-gradient(135deg,#faf5ff,#fff)!important;box-shadow:0 2px 14px rgba(124,58,237,.1)!important}
 .toc-card-extras:hover{border-color:#7c3aed!important;box-shadow:0 6px 22px rgba(124,58,237,.15)!important}
 .toc-card-extras strong{color:#5b21b6!important}
@@ -232,7 +236,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
     <a class="toc-card" href="#s-locais"><span style="font-size:22px">🏥</span><div><strong>Locais e Setores</strong><span>Gestão de instituições</span></div></a>
     <a class="toc-card" href="#s-usuarios"><span style="font-size:22px">👥</span><div><strong>Usuários</strong><span>Controle de acesso da equipe</span></div></a>
     <a class="toc-card" href="#s-perfil"><span style="font-size:22px">👤</span><div><strong>Meu Perfil</strong><span>Dados pessoais e segurança</span></div></a>
-    <a class="toc-card toc-card-extras" href="#s-extras"><span style="font-size:22px">✨</span><div><span class="toc-extras-hint">Extras</span><strong>Entregas complementares</strong><span>Relatórios para contabilidade e conformidade</span></div></a>
+    <a class="toc-card toc-card-extras" href="#s-extras"><span style="font-size:22px">✨</span><div><span class="toc-extras-hint">Extras</span><strong>Entregas complementares</strong><span>Contabilidade, comparador Pega Plantão × Humana e mais</span></div></a>
   </div>
 </div>
 
@@ -533,8 +537,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 <div class="sec sec-extras" id="s-extras">
   <div class="extras-tag">✨ Extras</div>
   <div class="sec-lbl">Entregas complementares</div>
-  <div class="sec-title">Além do núcleo do produto — com o mesmo acabamento</div>
-  <div class="sec-desc">Esta secção destaca <strong>entregas extras</strong>: relatórios e exportações pensados para a <strong>contabilidade</strong>, auditoria e fechos formais — fora do fluxo operacional do dia a dia, mas com a mesma clareza de dados e apresentação profissional do restante da Humana.</div>
+  <div class="sec-title">Além do núcleo do produto</div>
+  <div class="sec-desc">Aqui ficam <strong>entregas extras</strong>: relatórios para a <strong>contabilidade</strong>, <strong>ferramentas de validação</strong> frente a bases legadas e tudo o que apoia auditoria e fechos formais — além do fluxo operacional quotidiano da plataforma.</div>
 
   <div class="extra-card">
     <div class="sub-title">📑 Relatório consolidado para a contabilidade · 2025</div>
@@ -545,6 +549,19 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
       <div class="fc"><div class="fi it">📅</div><div><h4>Competência explícita</h4><p>Cada movimentação amarrada ao <strong>mês de competência</strong> (MM/AAAA), alinhando o que foi pago ao período contábil correspondente.</p></div></div>
       <div class="fc"><div class="fi ig">💰</div><div><h4>Valores transferidos consolidados</h4><p>Totais por favorecido e somas por competência quando a linha é expandida — visão executiva e detalhe para conferência.</p></div></div>
       <div class="fc"><div class="fi ib">📊</div><div><h4>Formato para a contabilidade</h4><p>Layout tipo relatório consolidado com título de exercício, adequado para fechamento anual e arquivo junto à documentação fiscal.</p></div></div>
+    </div>
+  </div>
+
+  <div class="extra-card">
+    <div class="sub-title">🔍 Comparador Pega Plantão × Humana</div>
+    <div class="extra-why"><span class="ew-ico" aria-hidden="true">⚡</span><div><strong>Por que existe.</strong> Na operação real apareciam <strong>divergências recorrentes</strong> — por exemplo após <strong>troca de setores</strong>, por <strong>diferenças de valores conforme o tipo de plantão</strong> e outros desalinhamentos entre o legado e a Humana. Para não depender de conferência manual interminável, foi construída esta <strong>ferramenta de validação</strong>: você envia o export do <strong>Pega Plantão</strong> e o arquivo da <strong>Humana</strong>, executa a comparação e o sistema <strong>aponta as divergências</strong> de forma objetiva.</div></div>
+    <div class="sub-desc">Interface em duas colunas: à esquerda, o <strong>Pega Plantão</strong> (sistema anterior — planilhas exportadas <strong>agrupadas por médico</strong>); à direita, a <strong>Humana</strong> (relatório de lucro com <strong>uma linha por plantão</strong>). Basta carregar cada ficheiro no campo certo e usar <strong>Comparar</strong>. Há ainda o separador <strong>Histórico</strong> para consultar comparações anteriores. Formatos: até 200&nbsp;MB por ficheiro — <strong>XLSX e XLS</strong> nos dois lados; <strong>CSV</strong> também aceite no lado Humana.</div>
+    <div class="ss"><img src="screenshots/extra-comparador-pega-plantao-humana.png" alt="Comparador Pega Plantão × Humana: separadores Comparação e Histórico, upload do arquivo legado agrupado por médico e do relatório Humana linha a linha, com botões Comparar."/></div>
+    <div class="fcg">
+      <div class="fc"><div class="fi io">📂</div><div><h4>Dois mundos, um par</h4><p>Coluna <strong>Pega Plantão</strong> para o export antigo; coluna <strong>Humana</strong> para o relatório novo — o comparador cruza os dois formatos de propósito diferentes.</p></div></div>
+      <div class="fc"><div class="fi ir">🎯</div><div><h4>Divergências visíveis</h4><p>Foco em inconsistências vindas de <strong>mudanças de setor</strong>, <strong>valores por tipo de plantão</strong> e demais ruídos entre legado e operação atual.</p></div></div>
+      <div class="fc"><div class="fi it">📄</div><div><h4>Histórico de comparações</h4><p>Aba <strong>Histórico</strong> para rever execuções anteriores sem refazer upload do zero sempre que precisar de contexto.</p></div></div>
+      <div class="fc"><div class="fi ib">📤</div><div><h4>Upload flexível</h4><p>Excel (XLSX/XLS) em ambos os lados; <strong>CSV</strong> no ficheiro Humana quando a exportação vier assim — limite generoso por arquivo.</p></div></div>
     </div>
   </div>
 </div>

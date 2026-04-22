@@ -1275,7 +1275,7 @@ function getShiftStartTimestamp(shift: Shift) {
 
 function formatTimeUntilShift(shift: Shift) {
   const diffMs = getShiftStartTimestamp(shift) - nowTick.value
-  if (diffMs <= 0) return `Disponível desde ${shift.startTime}`
+  if (diffMs <= 0) return `Disponível às ${shift.startTime}`
   const totalSeconds = Math.floor(diffMs / 1000)
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)

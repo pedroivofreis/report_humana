@@ -1,0 +1,31 @@
+{
+  "name": "Humana Check-in Lite",
+  "short_name": "Check-in Lite",
+  "description": "Frontend simplificado para fluxo de check-in Humana.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#f65111",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/icon-humana.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "118x113",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ]
+}

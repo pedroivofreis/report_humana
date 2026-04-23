@@ -183,12 +183,20 @@ async function apiGetUserName(userId: string): Promise<string | undefined> {
   }
 }
 
-export async function apiCheckin(userId: string, lat: number, lng: number): Promise<unknown> {
-  return request(`/user-shifts/checkin/${userId}?lat=${lat}&long=${lng}`, { method: 'POST' })
+export interface ApiUserShiftPatch {
+  status?: string
+  checkin_time?: string
+  checkin_lat?: number
+  checkin_long?: number
+  checkout_time?: string
+  [key: string]: unknown
 }
 
-export async function apiCheckout(userId: string): Promise<unknown> {
-  return request(`/user-shifts/checkout/${userId}`, { method: 'POST' })
+export async function apiUpdateUserShift(shiftId: string, patch: ApiUserShiftPatch): Promise<ApiUserShift> {
+  return request<ApiUserShift>(`/user-shifts/${shiftId}`, {
+    method: 'PUT',
+    body: JSON.stringify(patch),
+  })
 }
 
 export function mapApiShiftStatus(status: string | undefined): 'available' | 'active' | 'completed' {

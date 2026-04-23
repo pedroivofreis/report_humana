@@ -5,13 +5,9 @@ import {
   apiIsCpfRegistered,
   apiGetInstitutions,
   apiGetUserShifts,
-  apiCheckin,
-  apiCheckout,
-  getStoredToken,
-  getStoredUser,
+  apiUpdateUserShift,
   clearApiSession,
   mapApiShiftStatus,
-  type ApiUser,
   type ApiInstitution,
 } from './api'
 
@@ -55,6 +51,7 @@ interface ReviewData {
 
 interface Shift {
   id: string
+  apiId?: string
   hospitalName: string
   hospitalLogoUrl?: string
   hospitalAddress: string
@@ -95,6 +92,7 @@ interface SyncQueueItem {
 }
 
 const SESSION_KEY = 'humana-checkin-lite.session'
+const DOCTOR_KEY = 'humana-checkin-lite.doctor'
 const SHIFTS_KEY_PREFIX = 'humana-checkin-lite.shifts.'
 const ANNOUNCEMENTS_KEY_PREFIX = 'humana-checkin-lite.announcements.'
 const SYNC_QUEUE_KEY = 'humana-checkin-lite.sync-queue'
@@ -574,35 +572,32 @@ onBeforeUnmount(() => {
 })
 
 async function restoreSession() {
-  const apiUser = getStoredUser()
-  const token = getStoredToken()
+  const doctorId = localStorage.getItem(SESSION_KEY)
+  if (!doctorId) return
 
-  if (apiUser && token) {
-    const doctor = apiUserToDoctor(apiUser)
+  // Tenta mock primeiro
+  const mockDoctor = doctors.find((item) => item.id === doctorId)
+  if (mockDoctor) {
+    currentDoctor.value = mockDoctor
+    shifts.value = loadDoctorShifts(mockDoctor.id)
+    announcements.value = loadDoctorAnnouncements(mockDoctor.id)
+    applySavedAlertsPreference(mockDoctor.id)
+    return
+  }
+
+  // Usuário real da API — restaura do localStorage
+  const savedDoctor = localStorage.getItem(DOCTOR_KEY)
+  if (!savedDoctor) return
+  try {
+    const doctor = JSON.parse(savedDoctor) as Doctor
+    if (doctor.id !== doctorId) return
     currentDoctor.value = doctor
     shifts.value = loadDoctorShifts(doctor.id)
     announcements.value = loadDoctorAnnouncements(doctor.id)
     applySavedAlertsPreference(doctor.id)
-    fetchApiShifts(doctor).catch(() => {})
-    return
-  }
-
-  const doctorId = localStorage.getItem(SESSION_KEY)
-  if (!doctorId) return
-  const doctor = doctors.find((item) => item.id === doctorId)
-  if (!doctor) return
-  currentDoctor.value = doctor
-  shifts.value = loadDoctorShifts(doctor.id)
-  announcements.value = loadDoctorAnnouncements(doctor.id)
-  applySavedAlertsPreference(doctor.id)
-}
-
-function apiUserToDoctor(user: ApiUser): Doctor {
-  return {
-    id: user.id,
-    name: String(user.name ?? ''),
-    cpf: String(user.cpf ?? ''),
-    apiId: user.id,
+    fetchApiShifts().catch(() => {})
+  } catch {
+    // sessão corrompida
   }
 }
 
@@ -670,6 +665,7 @@ function apiShiftToShift(s: import('./api').ApiUserShift, fallbackInstitution?: 
 
   return {
     id: s.id,
+    apiId: s.id,
     hospitalName: instName,
     hospitalAddress: formatApiAddress(institution?.address),
     hospitalCoords: { lat, lng },
@@ -857,6 +853,8 @@ async function handleLogin() {
 
 function loginWith(doctor: Doctor) {
   currentDoctor.value = doctor
+  localStorage.setItem(SESSION_KEY, doctor.id)
+  localStorage.setItem(DOCTOR_KEY, JSON.stringify(doctor))
   shifts.value = loadDoctorShifts(doctor.id)
   announcements.value = loadDoctorAnnouncements(doctor.id)
   financeHospitalFilter.value = 'all'
@@ -877,6 +875,7 @@ function handleLogout() {
   financeStatusFilter.value = 'all'
   alertsEnabled.value = true
   localStorage.removeItem(SESSION_KEY)
+  localStorage.removeItem(DOCTOR_KEY)
   clearApiSession()
   closeShiftModal()
   closeReviewModal()
@@ -1187,8 +1186,13 @@ async function confirmShiftAction() {
     })
     appFeedback.value = 'Plantao iniciado com sucesso.'
     enqueueSyncAction('start-shift', { shiftId: selectedShift.value.id, timestamp: payload.timestamp })
-    if (isOnline.value && currentDoctor.value?.apiId && shiftModal.location) {
-      apiCheckin(currentDoctor.value.apiId, shiftModal.location.lat, shiftModal.location.lng).catch((err) => {
+    if (isOnline.value && selectedShift.value.apiId) {
+      apiUpdateUserShift(selectedShift.value.apiId, {
+        status: 'IN_PROGRESS',
+        checkin_time: payload.timestamp,
+        checkin_lat: payload.location.lat,
+        checkin_long: payload.location.lng,
+      }).catch((err) => {
         console.warn('[API] checkin failed:', err)
       })
     }
@@ -1201,8 +1205,11 @@ async function confirmShiftAction() {
     shiftListSegment.value = 'completed'
     appFeedback.value = 'Plantao encerrado e movido para realizados.'
     enqueueSyncAction('stop-shift', { shiftId: selectedShift.value.id, timestamp: payload.timestamp })
-    if (isOnline.value && currentDoctor.value?.apiId) {
-      apiCheckout(currentDoctor.value.apiId).catch((err) => {
+    if (isOnline.value && selectedShift.value.apiId) {
+      apiUpdateUserShift(selectedShift.value.apiId, {
+        status: 'COMPLETED',
+        checkout_time: payload.timestamp,
+      }).catch((err) => {
         console.warn('[API] checkout failed:', err)
       })
     }
@@ -1274,14 +1281,22 @@ function getShiftStartTimestamp(shift: Shift) {
 }
 
 function formatTimeUntilShift(shift: Shift) {
+  const today = formatIsoDate(new Date(nowTick.value))
+  if (shift.date !== today) {
+    const date = new Date(`${shift.date}T${shift.startTime}:00`)
+    const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+    const day = dayNames[date.getDay()]
+    const ddmm = `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`
+    return `${day}, ${ddmm} às ${shift.startTime}`
+  }
   const diffMs = getShiftStartTimestamp(shift) - nowTick.value
   if (diffMs <= 0) return `Disponível às ${shift.startTime}`
   const totalSeconds = Math.floor(diffMs / 1000)
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
-  if (hours > 0) return `Em ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-  return `Em ${pad(minutes)}:${pad(seconds)}`
+  if (hours > 0) return `em ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+  return `em ${pad(minutes)}:${pad(seconds)}`
 }
 
 function formatDistance(distance?: number) {

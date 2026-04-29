@@ -3,8 +3,10 @@
   --primary: #f65111;
   --primary-dark: #d9450e;
   --primary-soft: #fff1eb;
-  --success: #28c76f;
-  --success-dark: #20a85d;
+  /* Verdes mais saturados/escuros para melhor contraste em valores e status */
+  --success: #0f8f54;
+  --success-dark: #076b40;
+  --success-ink: #063d24;
   --warning: #ff9800;
   --danger: #ea5455;
   --danger-dark: #d13b44;
@@ -577,7 +579,7 @@ p {
 }
 
 .finance-metric--success .finance-metric__value {
-  color: var(--success-dark);
+  color: var(--success-ink);
 }
 
 .finance-table-card {
@@ -817,12 +819,13 @@ p {
 }
 
 .shift-ui__pay {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 800;
-  color: #1e6f4a;
-  background: #e8f9f0;
+  color: var(--success-ink);
+  background: linear-gradient(180deg, #eaf8f1 0%, #d8f0e5 100%);
+  border: 1px solid rgba(7, 107, 64, 0.28);
   border-radius: 999px;
-  padding: 0.35rem 0.65rem;
+  padding: 0.38rem 0.7rem;
   margin-inline-start: 0.8rem;
   white-space: nowrap;
 }
@@ -895,11 +898,11 @@ p {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   font-size: 1.05rem;
-  color: var(--success-dark);
+  color: var(--success-ink);
   padding: 0.4rem 0.65rem;
   border-radius: 10px;
-  border: 1px solid #c8eeda;
-  background: #f0fcf6;
+  border: 1px solid rgba(7, 107, 64, 0.35);
+  background: linear-gradient(180deg, #f0fcf6 0%, #e2f6eb 100%);
 }
 
 .shift-ui__end {
@@ -998,7 +1001,7 @@ p {
 
 .active-label {
   font-weight: 800;
-  color: #174f34;
+  color: var(--success-ink);
 }
 
 .next-label {
@@ -1048,7 +1051,7 @@ p {
 }
 
 .feedback {
-  color: var(--success);
+  color: var(--success-dark);
   font-weight: 600;
 }
 
@@ -1189,7 +1192,7 @@ p {
 }
 
 .status[data-status='active'] {
-  background: var(--success);
+  background: linear-gradient(180deg, var(--success) 0%, var(--success-dark) 100%);
 }
 
 .status[data-status='completed'] {

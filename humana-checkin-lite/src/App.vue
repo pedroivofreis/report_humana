@@ -2,8 +2,14 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import HospitalHeading from './components/HospitalHeading.vue'
 import {
+  apiCheckFirstLogin,
+  apiForgotPassword,
   apiIsCpfRegistered,
+  apiLogin,
+  apiResetPassword,
   apiGetInstitutions,
+  apiResetFirstLoginPassword,
+  apiSendFirstLoginToken,
   apiGetUserShifts,
   apiUpdateUserShift,
   clearApiSession,
@@ -14,6 +20,7 @@ import {
 type ShiftStatus = 'available' | 'active' | 'completed'
 type BottomTabId = 'myShifts' | 'calendar' | 'announcements' | 'finance' | 'account'
 type ModalMode = 'start' | 'stop'
+type LoginStep = 'cpf' | 'password' | 'firstAccess' | 'passwordReset'
 
 interface Doctor {
   id: string
@@ -67,6 +74,7 @@ interface Shift {
 
 interface AnnouncementShift {
   id: string
+  apiId?: string
   hospitalName: string
   hospitalLogoUrl?: string
   hospitalAddress: string
@@ -287,6 +295,16 @@ const currentDoctor = ref<Doctor | null>(null)
 const shifts = ref<Shift[]>([])
 const announcements = ref<AnnouncementShift[]>([])
 const loginCpf = ref('')
+const loginStep = ref<LoginStep>('cpf')
+const loginPassword = ref('')
+const firstAccessToken = ref('')
+const firstAccessPassword = ref('')
+const firstAccessPasswordConfirm = ref('')
+const resetToken = ref('')
+const resetPassword = ref('')
+const resetPasswordConfirm = ref('')
+const loginPendingDoctor = ref<{ id?: string; name?: string; cpf: string } | null>(null)
+const needsRegistration = ref(false)
 const loginError = ref('')
 const loginLoading = ref(false)
 const appFeedback = ref('')
@@ -331,6 +349,8 @@ const reviewModal = reactive({
 const announcementModal = reactive({
   open: false,
   announcementId: '',
+  loading: false,
+  error: '',
 })
 
 const alertsModal = reactive({
@@ -378,6 +398,8 @@ const calendarMonthLabel = computed(() =>
 
 const calendarDays = computed(() => buildMonthGrid(calendarMonth.value))
 const selectedDateShifts = computed(() => shiftsByDate.value.get(selectedCalendarDate.value) ?? [])
+const medicalSignupUrl = (import.meta.env.VITE_MEDICO_SIGNUP_URL as string | undefined)
+  ?? 'https://new-web-app-six-staging.vercel.app/register/document-identity'
 const nextScheduledShift = computed(() => {
   if (activeShift.value) return null
   const available = shifts.value
@@ -555,11 +577,12 @@ onMounted(() => {
   window.addEventListener('appinstalled', handleAppInstalled)
   window.addEventListener('online', handleConnectivityChange)
   window.addEventListener('offline', handleConnectivityChange)
-  restoreSession()
+  restoreSession().then(() => {
+    if (isOnline.value) flushSyncQueue().catch(() => {})
+  })
   clockInterval = window.setInterval(() => {
     nowTick.value = Date.now()
   }, 1000)
-  if (isOnline.value) flushSyncQueue()
 })
 
 onBeforeUnmount(() => {
@@ -620,18 +643,29 @@ async function fetchApiShifts(_doctor?: Doctor) {
       months.push(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`)
     }
 
-    const allShifts: Shift[] = []
+    const myShifts: Shift[] = []
+    const openAnnouncements: AnnouncementShift[] = []
+
     for (const inst of institutions) {
       for (const month of months) {
-        const apiShifts = await apiGetUserShifts(inst.id, month, userId)
+        // Fetch all shifts (no userId) to get both mine and open ones
+        const apiShifts = await apiGetUserShifts(inst.id, month)
         for (const s of apiShifts) {
-          allShifts.push(apiShiftToShift(s, inst))
+          if (!s.user_id) {
+            openAnnouncements.push(apiShiftToAnnouncement(s, inst))
+          } else if (userId && s.user_id === userId) {
+            myShifts.push(apiShiftToShift(s, inst))
+          }
         }
       }
     }
 
-    if (allShifts.length > 0) {
-      shifts.value = mergeApiShiftsWithLocal(allShifts, shifts.value)
+    if (myShifts.length > 0) {
+      shifts.value = mergeApiShiftsWithLocal(myShifts, shifts.value)
+    }
+    if (userId) {
+      // Only replace announcements with API data for real users
+      announcements.value = openAnnouncements
     }
   } catch (err) {
     console.warn('[API] shifts fetch failed, keeping local data:', err)
@@ -663,6 +697,7 @@ function apiShiftToShift(s: import('./api').ApiUserShift, fallbackInstitution?: 
 
   const instName = institution?.display_name ?? institution?.name ?? 'Hospital'
 
+  const emptyLocation: CheckLocation = { lat: 0, lng: 0, accuracyMeters: 0, distanceToHospitalMeters: 0, within500m: false }
   return {
     id: s.id,
     apiId: s.id,
@@ -673,6 +708,41 @@ function apiShiftToShift(s: import('./api').ApiUserShift, fallbackInstitution?: 
     startTime,
     endTime,
     status: mapApiShiftStatus(s.status),
+    checkIn: s.checkin_time
+      ? {
+          timestamp: s.checkin_time,
+          location: {
+            ...emptyLocation,
+            lat: Number(s.checkin_lat ?? 0),
+            lng: Number(s.checkin_long ?? 0),
+          },
+          device: 'api',
+          ip: 'api',
+        }
+      : undefined,
+    checkOut: s.checkout_time
+      ? { timestamp: s.checkout_time, location: emptyLocation, device: 'api', ip: 'api' }
+      : undefined,
+  }
+}
+
+function apiShiftToAnnouncement(s: import('./api').ApiUserShift, fallbackInstitution?: ApiInstitution): AnnouncementShift {
+  const institution = s.institution ?? fallbackInstitution
+  const lat = institution?.lat ?? institution?.latitude ?? -23.5505
+  const lng = institution?.long ?? institution?.longitude ?? -46.6333
+  const startTime = s.planned_start ? s.planned_start.slice(11, 16) : (s.start_time ?? '00:00').slice(0, 5)
+  const endTime = s.planned_end ? s.planned_end.slice(11, 16) : (s.end_time ?? '00:00').slice(0, 5)
+  const instName = institution?.display_name ?? institution?.name ?? 'Hospital'
+  return {
+    id: s.id,
+    apiId: s.id,
+    hospitalName: instName,
+    hospitalAddress: formatApiAddress(institution?.address),
+    hospitalCoords: { lat, lng },
+    date: s.date ?? formatIsoDate(new Date()),
+    startTime,
+    endTime,
+    specialty: s.sector?.display_name ?? s.sector?.name ?? 'Plantão',
   }
 }
 
@@ -829,26 +899,230 @@ async function handleLogin() {
     return
   }
 
-  // 2) Verifica na API real
+  // 2) Verifica na API real e decide o fluxo:
+  // cadastro | primeiro acesso com token | login normal por senha
   loginLoading.value = true
   try {
     const { registered, name, id } = await apiIsCpfRegistered(cpf)
     if (!registered) {
-      loginError.value = 'Não encontramos médico com este CPF.'
+      needsRegistration.value = false
+      loginPendingDoctor.value = null
+      loginStep.value = 'cpf'
+      loginError.value = 'Usuário não cadastrado. Entre em contato com a administração.'
       return
     }
-    const doctor: Doctor = {
-      id: id ?? cpf,
-      name: name ?? 'Médico',
-      cpf,
-      apiId: id,
+    // TEMP (teste local): desconsidera bloqueio por status para permitir fluxo de senha/redefinição.
+    // if (!effectiveActive && effectiveStatus === 'REGISTERED') {
+    //   needsRegistration.value = true
+    //   loginPendingDoctor.value = null
+    //   loginStep.value = 'cpf'
+    //   loginError.value = 'Seu cadastro foi criado, mas ainda falta concluir. Clique em "Ir para cadastro médico".'
+    //   return
+    // }
+    // if (!effectiveActive) {
+    //   needsRegistration.value = false
+    //   loginPendingDoctor.value = null
+    //   loginStep.value = 'cpf'
+    //   loginError.value = `Seu cadastro não está ativo (${statusLabelPt(effectiveStatus)}). Entre em contato com a administração.`
+    //   return
+    // }
+    needsRegistration.value = false
+    loginPendingDoctor.value = { id, name, cpf }
+    const firstLogin = await apiCheckFirstLogin(cpf)
+    if (firstLogin.has_password) {
+      loginStep.value = 'password'
+      appFeedback.value = 'CPF confirmado. Informe sua senha para entrar.'
+      return
     }
-    loginWith(doctor)
+    await apiSendFirstLoginToken(cpf)
+    loginStep.value = 'firstAccess'
+    appFeedback.value = 'Enviamos um token de 6 dígitos para o e-mail cadastrado.'
   } catch {
     loginError.value = 'Erro ao verificar CPF. Verifique sua conexão.'
   } finally {
     loginLoading.value = false
   }
+}
+
+async function handlePasswordLogin() {
+  loginError.value = ''
+  appFeedback.value = ''
+  const pending = loginPendingDoctor.value
+  if (!pending?.cpf) {
+    loginError.value = 'Informe o CPF novamente.'
+    loginStep.value = 'cpf'
+    return
+  }
+  if (!loginPassword.value.trim()) {
+    loginError.value = 'Digite sua senha.'
+    return
+  }
+  loginLoading.value = true
+  try {
+    const { user } = await apiLogin(pending.cpf, loginPassword.value)
+    completeApiLogin(pending, user)
+  } catch {
+    loginError.value = 'Senha inválida ou acesso indisponível no momento.'
+  } finally {
+    loginLoading.value = false
+  }
+}
+
+async function handleFirstAccessReset() {
+  loginError.value = ''
+  appFeedback.value = ''
+  const pending = loginPendingDoctor.value
+  if (!pending?.cpf) {
+    loginError.value = 'Informe o CPF novamente.'
+    loginStep.value = 'cpf'
+    return
+  }
+  const token = firstAccessToken.value.replace(/\D/g, '')
+  if (token.length !== 6) {
+    loginError.value = 'Digite o token de 6 dígitos recebido no e-mail.'
+    return
+  }
+  if (firstAccessPassword.value.length < 6) {
+    loginError.value = 'A nova senha deve ter pelo menos 6 caracteres.'
+    return
+  }
+  if (firstAccessPassword.value !== firstAccessPasswordConfirm.value) {
+    loginError.value = 'A confirmação de senha não confere.'
+    return
+  }
+  loginLoading.value = true
+  try {
+    await apiResetFirstLoginPassword(token, firstAccessPassword.value)
+    const { user } = await apiLogin(pending.cpf, firstAccessPassword.value)
+    completeApiLogin(pending, user)
+  } catch (error) {
+    const detail = apiErrorDetail(error)
+    loginError.value = detail || 'Token inválido/expirado ou não foi possível definir a senha.'
+  } finally {
+    loginLoading.value = false
+  }
+}
+
+async function resendFirstAccessToken() {
+  loginError.value = ''
+  appFeedback.value = ''
+  const cpf = loginPendingDoctor.value?.cpf
+  if (!cpf) {
+    loginStep.value = 'cpf'
+    loginError.value = 'Informe o CPF novamente.'
+    return
+  }
+  loginLoading.value = true
+  try {
+    await apiSendFirstLoginToken(cpf)
+    appFeedback.value = 'Token reenviado para o e-mail cadastrado.'
+  } catch (error) {
+    const detail = apiErrorDetail(error)
+    loginError.value = detail || 'Não foi possível reenviar o token agora.'
+  } finally {
+    loginLoading.value = false
+  }
+}
+
+async function startPasswordReset() {
+  loginError.value = ''
+  appFeedback.value = ''
+  const cpf = loginPendingDoctor.value?.cpf
+  if (!cpf) {
+    loginStep.value = 'cpf'
+    loginError.value = 'Informe o CPF novamente.'
+    return
+  }
+  loginLoading.value = true
+  try {
+    await apiForgotPassword(cpf)
+    loginStep.value = 'passwordReset'
+    appFeedback.value = 'Enviamos um token de redefinição para o e-mail cadastrado.'
+  } catch (error) {
+    const detail = apiErrorDetail(error)
+    loginError.value = detail || 'Não foi possível iniciar a redefinição de senha agora.'
+  } finally {
+    loginLoading.value = false
+  }
+}
+
+async function handlePasswordReset() {
+  loginError.value = ''
+  appFeedback.value = ''
+  const pending = loginPendingDoctor.value
+  if (!pending?.cpf) {
+    loginStep.value = 'cpf'
+    loginError.value = 'Informe o CPF novamente.'
+    return
+  }
+  const token = resetToken.value.replace(/\D/g, '')
+  if (token.length !== 6) {
+    loginError.value = 'Digite o token de 6 dígitos recebido no e-mail.'
+    return
+  }
+  if (resetPassword.value.length < 6) {
+    loginError.value = 'A nova senha deve ter pelo menos 6 caracteres.'
+    return
+  }
+  if (resetPassword.value !== resetPasswordConfirm.value) {
+    loginError.value = 'A confirmação de senha não confere.'
+    return
+  }
+  loginLoading.value = true
+  try {
+    await apiResetPassword(token, resetPassword.value)
+    const { user } = await apiLogin(pending.cpf, resetPassword.value)
+    completeApiLogin(pending, user)
+  } catch (error) {
+    const detail = apiErrorDetail(error)
+    loginError.value = detail || 'Token inválido/expirado ou não foi possível redefinir a senha.'
+  } finally {
+    loginLoading.value = false
+  }
+}
+
+function apiErrorDetail(error: unknown): string {
+  if (!(error instanceof Error) || !error.message) return ''
+  const start = error.message.indexOf('{')
+  if (start < 0) return ''
+  try {
+    const parsed = JSON.parse(error.message.slice(start)) as { detail?: string }
+    return parsed.detail ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function completeApiLogin(
+  pending: { id?: string; name?: string; cpf: string },
+  user: { id?: string; name?: string; cpf?: string },
+) {
+  const doctor: Doctor = {
+    id: String(user.id ?? pending.id ?? pending.cpf),
+    name: user.name ?? pending.name ?? 'Médico',
+    cpf: user.cpf ?? pending.cpf,
+    apiId: String(user.id ?? pending.id ?? pending.cpf),
+  }
+  loginWith(doctor)
+}
+
+function openMedicalSignup() {
+  window.open(medicalSignupUrl, '_blank', 'noopener,noreferrer')
+}
+
+function backToCpfStep() {
+  loginStep.value = 'cpf'
+  loginPassword.value = ''
+  firstAccessToken.value = ''
+  firstAccessPassword.value = ''
+  firstAccessPasswordConfirm.value = ''
+  resetToken.value = ''
+  resetPassword.value = ''
+  resetPasswordConfirm.value = ''
+  loginPendingDoctor.value = null
+  needsRegistration.value = false
+  loginError.value = ''
+  appFeedback.value = ''
 }
 
 function loginWith(doctor: Doctor) {
@@ -862,6 +1136,16 @@ function loginWith(doctor: Doctor) {
   applySavedAlertsPreference(doctor.id)
   activeTab.value = 'myShifts'
   loginCpf.value = ''
+  loginPassword.value = ''
+  firstAccessToken.value = ''
+  firstAccessPassword.value = ''
+  firstAccessPasswordConfirm.value = ''
+  resetToken.value = ''
+  resetPassword.value = ''
+  resetPasswordConfirm.value = ''
+  loginPendingDoctor.value = null
+  needsRegistration.value = false
+  loginStep.value = 'cpf'
   enqueueSyncAction('login', { doctorId: doctor.id, cpf: doctor.cpf })
   fetchApiShifts().catch(() => {})
 }
@@ -876,6 +1160,17 @@ function handleLogout() {
   alertsEnabled.value = true
   localStorage.removeItem(SESSION_KEY)
   localStorage.removeItem(DOCTOR_KEY)
+  loginCpf.value = ''
+  loginPassword.value = ''
+  firstAccessToken.value = ''
+  firstAccessPassword.value = ''
+  firstAccessPasswordConfirm.value = ''
+  resetToken.value = ''
+  resetPassword.value = ''
+  resetPasswordConfirm.value = ''
+  loginPendingDoctor.value = null
+  needsRegistration.value = false
+  loginStep.value = 'cpf'
   clearApiSession()
   closeShiftModal()
   closeReviewModal()
@@ -910,10 +1205,10 @@ function handleBeforeInstallPrompt(event: BeforeInstallPromptEvent) {
 function handleConnectivityChange() {
   isOnline.value = navigator.onLine
   if (isOnline.value) {
-    flushSyncQueue()
-    appFeedback.value = 'Conexao restaurada. Sincronizando dados salvos offline.'
+    appFeedback.value = 'Conexão restaurada. Sincronizando dados...'
+    flushSyncQueue().catch(() => {})
   } else {
-    appFeedback.value = 'Sem internet. Suas acoes serao salvas offline.'
+    appFeedback.value = 'Sem internet. Suas ações serão salvas offline.'
   }
 }
 
@@ -928,19 +1223,58 @@ function enqueueSyncAction(action: SyncQueueItem['action'], payload: Record<stri
     },
     ...syncQueue.value,
   ]
-  if (isOnline.value) flushSyncQueue()
 }
 
-function flushSyncQueue() {
-  syncQueue.value = syncQueue.value.map((item) =>
-    item.status === 'pending'
-      ? {
-          ...item,
-          status: 'synced',
-          syncedAt: new Date().toISOString(),
-        }
-      : item,
-  )
+async function replayQueueItem(item: SyncQueueItem): Promise<void> {
+  const { action, payload } = item
+  switch (action) {
+    case 'start-shift':
+      if (payload.apiShiftId) {
+        await apiUpdateUserShift(payload.apiShiftId, {
+          status: 'IN_PROGRESS',
+          checkin_time: payload.timestamp,
+          checkin_lat: payload.lat ? Number(payload.lat) : undefined,
+          checkin_long: payload.lng ? Number(payload.lng) : undefined,
+        })
+      }
+      break
+    case 'stop-shift':
+      if (payload.apiShiftId) {
+        await apiUpdateUserShift(payload.apiShiftId, {
+          status: 'COMPLETED',
+          checkout_time: payload.timestamp,
+        })
+      }
+      break
+    case 'take-announcement':
+      if (payload.apiShiftId && payload.userId) {
+        await apiUpdateUserShift(payload.apiShiftId, {
+          user_id: payload.userId,
+          status: 'PLANNED',
+        })
+      }
+      break
+  }
+}
+
+async function flushSyncQueue(): Promise<void> {
+  if (!currentDoctor.value) return
+  const pending = syncQueue.value.filter((item) => item.status === 'pending')
+  if (pending.length === 0) {
+    await fetchApiShifts()
+    return
+  }
+  for (const item of pending) {
+    try {
+      await replayQueueItem(item)
+      syncQueue.value = syncQueue.value.map((q) =>
+        q.id === item.id ? { ...q, status: 'synced' as const, syncedAt: new Date().toISOString() } : q,
+      )
+    } catch (err) {
+      console.warn('[sync] failed to replay action:', item.action, err)
+    }
+  }
+  await fetchApiShifts()
 }
 
 function handleAppInstalled() {
@@ -1046,13 +1380,18 @@ function openAnnouncementModal(announcement: AnnouncementShift) {
 function closeAnnouncementModal() {
   announcementModal.open = false
   announcementModal.announcementId = ''
+  announcementModal.loading = false
+  announcementModal.error = ''
 }
 
 function takeAnnouncementShift() {
   if (!selectedAnnouncement.value) return
   const announcement = selectedAnnouncement.value
+
+  // Atualização otimista: move imediatamente para Meus plantões
   const newShift: Shift = {
     id: announcement.id,
+    apiId: announcement.apiId,
     hospitalName: announcement.hospitalName,
     hospitalLogoUrl: announcement.hospitalLogoUrl,
     hospitalAddress: announcement.hospitalAddress,
@@ -1066,9 +1405,23 @@ function takeAnnouncementShift() {
   shifts.value = [newShift, ...shifts.value]
   announcements.value = announcements.value.filter((item) => item.id !== announcement.id)
   enqueueSyncAction('take-announcement', { announcementId: announcement.id, shiftId: newShift.id })
-  appFeedback.value = 'Plantao pego com sucesso. Ele ja aparece em Meus plantoes e Calendario.'
-  activeTab.value = 'calendar'
+  appFeedback.value = 'Plantão pego com sucesso! Já aparece em Meus plantões.'
+  activeTab.value = 'myShifts'
   closeAnnouncementModal()
+
+  // Sincroniza com a API em background
+  if (announcement.apiId && currentDoctor.value?.apiId) {
+    const apiShiftId = announcement.apiId
+    const userId = currentDoctor.value.apiId
+    if (isOnline.value) {
+      apiUpdateUserShift(apiShiftId, { user_id: userId, status: 'PLANNED' }).catch((err) => {
+        console.warn('[API] take announcement failed, enfileirando:', err)
+        enqueueSyncAction('take-announcement', { apiShiftId, userId })
+      })
+    } else {
+      enqueueSyncAction('take-announcement', { apiShiftId, userId })
+    }
+  }
 }
 
 async function collectRuntimeContext() {
@@ -1177,41 +1530,50 @@ async function confirmShiftAction() {
     ip: shiftModal.ip || 'nao-detectado',
   }
 
+  const shiftId = selectedShift.value.id
+  const apiShiftId = selectedShift.value.apiId
+
   if (shiftModal.mode === 'start') {
-    updateShift(selectedShift.value.id, {
-      status: 'active',
-      checkIn: payload,
-      checkOut: undefined,
-      review: undefined,
-    })
-    appFeedback.value = 'Plantao iniciado com sucesso.'
-    enqueueSyncAction('start-shift', { shiftId: selectedShift.value.id, timestamp: payload.timestamp })
-    if (isOnline.value && selectedShift.value.apiId) {
-      apiUpdateUserShift(selectedShift.value.apiId, {
+    updateShift(shiftId, { status: 'active', checkIn: payload, checkOut: undefined, review: undefined })
+    appFeedback.value = 'Plantão iniciado com sucesso.'
+    if (isOnline.value && apiShiftId) {
+      apiUpdateUserShift(apiShiftId, {
         status: 'IN_PROGRESS',
         checkin_time: payload.timestamp,
         checkin_lat: payload.location.lat,
         checkin_long: payload.location.lng,
       }).catch((err) => {
-        console.warn('[API] checkin failed:', err)
+        console.warn('[API] checkin failed, enfileirando:', err)
+        enqueueSyncAction('start-shift', {
+          apiShiftId: apiShiftId!,
+          timestamp: payload.timestamp,
+          lat: String(payload.location.lat),
+          lng: String(payload.location.lng),
+        })
+      })
+    } else if (apiShiftId) {
+      enqueueSyncAction('start-shift', {
+        apiShiftId,
+        timestamp: payload.timestamp,
+        lat: String(payload.location.lat),
+        lng: String(payload.location.lng),
       })
     }
   } else {
-    updateShift(selectedShift.value.id, {
-      status: 'completed',
-      checkOut: payload,
-    })
+    updateShift(shiftId, { status: 'completed', checkOut: payload })
     activeTab.value = 'myShifts'
     shiftListSegment.value = 'completed'
-    appFeedback.value = 'Plantao encerrado e movido para realizados.'
-    enqueueSyncAction('stop-shift', { shiftId: selectedShift.value.id, timestamp: payload.timestamp })
-    if (isOnline.value && selectedShift.value.apiId) {
-      apiUpdateUserShift(selectedShift.value.apiId, {
+    appFeedback.value = 'Plantão encerrado e movido para realizados.'
+    if (isOnline.value && apiShiftId) {
+      apiUpdateUserShift(apiShiftId, {
         status: 'COMPLETED',
         checkout_time: payload.timestamp,
       }).catch((err) => {
-        console.warn('[API] checkout failed:', err)
+        console.warn('[API] checkout failed, enfileirando:', err)
+        enqueueSyncAction('stop-shift', { apiShiftId: apiShiftId!, timestamp: payload.timestamp })
       })
+    } else if (apiShiftId) {
+      enqueueSyncAction('stop-shift', { apiShiftId, timestamp: payload.timestamp })
     }
   }
 
@@ -1442,25 +1804,137 @@ function buildMonthGrid(referenceMonth: Date) {
         </button>
       </div>
       <h1>Check-in Lite</h1>
-      <p class="description">Entre com seu CPF para acessar seus plantões.</p>
+      <p class="description" v-if="loginStep === 'cpf'">Entre com seu CPF para acessar seus plantões.</p>
+      <p class="description" v-else-if="loginStep === 'password'">CPF confirmado. Informe sua senha.</p>
+      <p class="description" v-else-if="loginStep === 'firstAccess'">Primeiro acesso: informe token e crie sua senha.</p>
+      <p class="description" v-else>Redefinição de senha: informe token e nova senha.</p>
       <p v-if="installFeedback" class="helper">{{ installFeedback }}</p>
+      <p v-if="appFeedback" class="helper">{{ appFeedback }}</p>
 
-      <label for="cpf-input" class="label">CPF do médico</label>
-      <input
-        id="cpf-input"
-        :value="maskedCpf"
-        class="input"
-        inputmode="numeric"
-        maxlength="14"
-        placeholder="000.000.000-00"
-        autocomplete="username"
-        @input="loginCpf = ($event.target as HTMLInputElement).value"
-        @keyup.enter="handleLogin"
-      />
+      <template v-if="loginStep === 'cpf'">
+        <label for="cpf-input" class="label">CPF do médico</label>
+        <input
+          id="cpf-input"
+          :value="maskedCpf"
+          class="input"
+          inputmode="numeric"
+          maxlength="14"
+          placeholder="000.000.000-00"
+          autocomplete="username"
+          @input="loginCpf = ($event.target as HTMLInputElement).value"
+          @keyup.enter="handleLogin"
+        />
+        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handleLogin">
+          {{ loginLoading ? 'Validando...' : 'Continuar' }}
+        </button>
+        <button
+          v-if="needsRegistration"
+          type="button"
+          class="btn secondary big"
+          :disabled="loginLoading"
+          @click="openMedicalSignup"
+        >
+          Ir para cadastro médico
+        </button>
+      </template>
 
-      <button type="button" class="btn primary big" :disabled="loginLoading" @click="handleLogin">
-        {{ loginLoading ? 'Entrando...' : 'Entrar' }}
-      </button>
+      <template v-else-if="loginStep === 'password'">
+        <label for="password-input" class="label">Senha</label>
+        <input
+          id="password-input"
+          v-model="loginPassword"
+          class="input"
+          type="password"
+          placeholder="Digite sua senha"
+          autocomplete="current-password"
+          @keyup.enter="handlePasswordLogin"
+        />
+        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handlePasswordLogin">
+          {{ loginLoading ? 'Entrando...' : 'Entrar' }}
+        </button>
+        <button type="button" class="btn secondary big" :disabled="loginLoading" @click="startPasswordReset">
+          Esqueci minha senha
+        </button>
+        <button type="button" class="btn ghost big" :disabled="loginLoading" @click="backToCpfStep">Voltar</button>
+      </template>
+
+      <template v-else-if="loginStep === 'firstAccess'">
+        <label for="token-input" class="label">Token (6 dígitos)</label>
+        <input
+          id="token-input"
+          v-model="firstAccessToken"
+          class="input"
+          inputmode="numeric"
+          maxlength="6"
+          placeholder="000000"
+          autocomplete="one-time-code"
+        />
+        <label for="new-password-input" class="label">Nova senha</label>
+        <input
+          id="new-password-input"
+          v-model="firstAccessPassword"
+          class="input"
+          type="password"
+          placeholder="Mínimo de 6 caracteres"
+          autocomplete="new-password"
+        />
+        <label for="confirm-password-input" class="label">Confirmar senha</label>
+        <input
+          id="confirm-password-input"
+          v-model="firstAccessPasswordConfirm"
+          class="input"
+          type="password"
+          placeholder="Repita a senha"
+          autocomplete="new-password"
+          @keyup.enter="handleFirstAccessReset"
+        />
+        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handleFirstAccessReset">
+          {{ loginLoading ? 'Confirmando...' : 'Definir senha e entrar' }}
+        </button>
+        <button type="button" class="btn secondary big" :disabled="loginLoading" @click="resendFirstAccessToken">
+          Reenviar token
+        </button>
+        <button type="button" class="btn ghost big" :disabled="loginLoading" @click="backToCpfStep">Voltar</button>
+      </template>
+
+      <template v-else>
+        <label for="reset-token-input" class="label">Token (6 dígitos)</label>
+        <input
+          id="reset-token-input"
+          v-model="resetToken"
+          class="input"
+          inputmode="numeric"
+          maxlength="6"
+          placeholder="000000"
+          autocomplete="one-time-code"
+        />
+        <label for="reset-password-input" class="label">Nova senha</label>
+        <input
+          id="reset-password-input"
+          v-model="resetPassword"
+          class="input"
+          type="password"
+          placeholder="Mínimo de 6 caracteres"
+          autocomplete="new-password"
+        />
+        <label for="reset-password-confirm-input" class="label">Confirmar senha</label>
+        <input
+          id="reset-password-confirm-input"
+          v-model="resetPasswordConfirm"
+          class="input"
+          type="password"
+          placeholder="Repita a senha"
+          autocomplete="new-password"
+          @keyup.enter="handlePasswordReset"
+        />
+        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handlePasswordReset">
+          {{ loginLoading ? 'Confirmando...' : 'Redefinir senha e entrar' }}
+        </button>
+        <button type="button" class="btn secondary big" :disabled="loginLoading" @click="startPasswordReset">
+          Reenviar token
+        </button>
+        <button type="button" class="btn ghost big" :disabled="loginLoading" @click="backToCpfStep">Voltar</button>
+      </template>
 
       <p v-if="loginError" class="helper error">{{ loginError }}</p>
     </section>
@@ -2179,8 +2653,11 @@ function buildMonthGrid(referenceMonth: Date) {
           </div>
         </dl>
       </div>
-      <p class="helper">Deseja mesmo pegar este plantao? Ele sera adicionado em Meus plantoes e Calendario.</p>
-      <button type="button" class="btn success full big" @click="takeAnnouncementShift">Confirmar e pegar plantao</button>
+      <p class="helper">Deseja mesmo pegar este plantão? Ele será vinculado ao seu perfil e aparecerá em Meus plantões.</p>
+      <p v-if="announcementModal.error" class="form-error">{{ announcementModal.error }}</p>
+      <button type="button" class="btn success full big" :disabled="announcementModal.loading" @click="takeAnnouncementShift">
+        {{ announcementModal.loading ? 'Pegando plantão...' : 'Confirmar e pegar plantão' }}
+      </button>
     </section>
   </div>
 </template>

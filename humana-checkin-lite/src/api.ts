@@ -44,6 +44,8 @@ export interface ApiUserShift {
   id: string
   institution_id?: string
   institution?: ApiInstitution
+  user_id?: string | null
+  user?: { id?: string; first_name?: string; last_name?: string; name?: string; [key: string]: unknown } | null
   sector?: { id: string; display_name?: string; name?: string }
   date?: string
   planned_start?: string
@@ -55,6 +57,10 @@ export interface ApiUserShift {
   checkin_time?: string
   checkout_time?: string
   [key: string]: unknown
+}
+
+interface FirstLoginCheckResponse {
+  has_password: boolean
 }
 
 export function getStoredToken(): string | null {
@@ -149,7 +155,13 @@ export async function apiGetUserShifts(
   return result as ApiUserShift[]
 }
 
-export async function apiIsCpfRegistered(cpf: string): Promise<{ registered: boolean; name?: string; id?: string }> {
+export async function apiIsCpfRegistered(cpf: string): Promise<{
+  registered: boolean
+  active: boolean
+  status?: string
+  name?: string
+  id?: string
+}> {
   try {
     const result = await request<{
       user_id?: string
@@ -158,17 +170,62 @@ export async function apiIsCpfRegistered(cpf: string): Promise<{ registered: boo
       registered?: boolean
       name?: string
       id?: string
-    }>(`/users/is-registered/${cpf}`)
+    } | null>(`/users/is-registered/${cpf}`)
+
+    if (!result) return { registered: false, active: false }
 
     if (result.user_id) {
       const name = await apiGetUserName(result.user_id)
-      return { registered: true, id: result.user_id, name }
+      const status = String(result.status ?? '').toUpperCase()
+      return { registered: true, active: status === 'ACTIVE', status, id: result.user_id, name }
     }
     const registered = result.is_registered ?? result.registered ?? false
-    return { registered: Boolean(registered), name: result.name, id: result.id }
+    const status = String(result.status ?? '').toUpperCase()
+    return {
+      registered: Boolean(registered),
+      active: status === 'ACTIVE',
+      status,
+      name: result.name,
+      id: result.id,
+    }
   } catch {
-    return { registered: false }
+    return { registered: false, active: false }
   }
+}
+
+export async function apiCheckFirstLogin(cpf: string): Promise<FirstLoginCheckResponse> {
+  return request<FirstLoginCheckResponse>('/first-login/check', {
+    method: 'POST',
+    body: JSON.stringify({ cpf }),
+  })
+}
+
+export async function apiSendFirstLoginToken(cpf: string): Promise<void> {
+  await request<unknown>('/first-login/send-token', {
+    method: 'POST',
+    body: JSON.stringify({ cpf }),
+  })
+}
+
+export async function apiResetFirstLoginPassword(token: string, newPassword: string): Promise<void> {
+  await request<unknown>('/first-login/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, new_password: newPassword }),
+  })
+}
+
+export async function apiForgotPassword(cpf: string): Promise<void> {
+  await request<unknown>('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ cpf }),
+  })
+}
+
+export async function apiResetPassword(token: string, newPassword: string): Promise<void> {
+  await request<unknown>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, new_password: newPassword }),
+  })
 }
 
 async function apiGetUserName(userId: string): Promise<string | undefined> {
@@ -184,6 +241,7 @@ async function apiGetUserName(userId: string): Promise<string | undefined> {
 }
 
 export interface ApiUserShiftPatch {
+  user_id?: string | null
   status?: string
   checkin_time?: string
   checkin_lat?: number

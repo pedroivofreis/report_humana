@@ -25,6 +25,7 @@ from app.api.schemas.user import (
     UserUpdateRequest,
 )
 from app.api.schemas.user_specialty import UserSpecialtyWithDetailsResponse
+from app.core.cpf import Cpf
 from app.core.security import get_password_hash
 from app.db.session import AsyncSession, get_db_session
 
@@ -208,6 +209,9 @@ class UserRepository:
 
     async def get_user_auth_data_by_cpf(self, cpf: str) -> User | None:
         """Get a user by CPF with password for authentication."""
+        if not Cpf.validate(cpf):
+            logger.info("get_user_auth_data_by_cpf received invalid cpf format")
+            return None
         result = await self.db.execute(
             select(User)
             .where(User.cpf == cpf)
@@ -218,6 +222,9 @@ class UserRepository:
     async def get_user_by_cpf(self, cpf: str) -> UserResponse | None:
         """Get a user by CPF."""
         logger.debug(f"get_user_by_cpf called for cpf={cpf}")
+        if not Cpf.validate(cpf):
+            logger.info("get_user_by_cpf received invalid cpf format")
+            return None
         result = await self.db.execute(
             select(User)
             .where(User.cpf == cpf)

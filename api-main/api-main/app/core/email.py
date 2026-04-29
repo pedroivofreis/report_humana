@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import mailtrap as mt
@@ -6,6 +7,15 @@ import structlog
 from app.core.config import settings
 
 logger = structlog.getLogger(__name__)
+
+_PASSWORD_RESET_TEMPLATE_PATH = (
+    Path(__file__).resolve().parent.parent / "templates" / "email" / "password_reset.html"
+)
+
+
+def _render_password_reset_html(reset_link: str) -> str:
+    raw = _PASSWORD_RESET_TEMPLATE_PATH.read_text(encoding="utf-8")
+    return raw.replace("{{RESET_LINK}}", reset_link)
 
 
 class EmailService:
@@ -43,16 +53,14 @@ class EmailService:
 
     async def send_password_reset_email(self, to_email: str, token: str) -> None:
         reset_link = f"{settings.RESET_PASSWORD_URL}?token={token}"
-        subject = "Password Reset Request"
-        text = f"You requested a password reset. Click the following link to reset your password: {reset_link}"
-        html = f"""
-        <html>
-            <body>
-                <h1>Password Reset Request</h1>
-                <p>You requested a password reset. Click the following link to reset your password:</p>
-                <p><a href="{reset_link}">Reset Password</a></p>
-                <p>If you did not request this, please ignore this email.</p>
-            </body>
-        </html>
-        """
+        subject = "Humana — Redefinição de senha"
+        text = (
+            "Olá,\n\n"
+            "Recebemos um pedido para redefinir a senha da sua conta Humana.\n\n"
+            "Abra o link abaixo no navegador (válido por cerca de 1 hora):\n"
+            f"{reset_link}\n\n"
+            "Se você não solicitou, ignore este e-mail.\n\n"
+            "— Equipe Humana"
+        )
+        html = _render_password_reset_html(reset_link)
         await self.send_email(to_email, subject, text, html)

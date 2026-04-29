@@ -2,14 +2,10 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import HospitalHeading from './components/HospitalHeading.vue'
 import {
-  apiCheckFirstLogin,
-  apiForgotPassword,
   apiIsCpfRegistered,
   apiLogin,
-  apiResetPassword,
   apiGetInstitutions,
-  apiResetFirstLoginPassword,
-  apiSendFirstLoginToken,
+  apiForgotPassword,
   apiGetUserShifts,
   apiUpdateUserShift,
   clearApiSession,
@@ -20,8 +16,6 @@ import {
 type ShiftStatus = 'available' | 'active' | 'completed'
 type BottomTabId = 'myShifts' | 'calendar' | 'announcements' | 'finance' | 'account'
 type ModalMode = 'start' | 'stop'
-type LoginStep = 'cpf' | 'password' | 'firstAccess' | 'passwordReset'
-
 interface Doctor {
   id: string
   name: string
@@ -295,16 +289,11 @@ const currentDoctor = ref<Doctor | null>(null)
 const shifts = ref<Shift[]>([])
 const announcements = ref<AnnouncementShift[]>([])
 const loginCpf = ref('')
-const loginStep = ref<LoginStep>('cpf')
 const loginPassword = ref('')
-const firstAccessToken = ref('')
-const firstAccessPassword = ref('')
-const firstAccessPasswordConfirm = ref('')
-const resetToken = ref('')
-const resetPassword = ref('')
-const resetPasswordConfirm = ref('')
-const loginPendingDoctor = ref<{ id?: string; name?: string; cpf: string } | null>(null)
+/** Cadastro iniciado mas documentação incompleta (ex.: status REGISTERED). */
 const needsRegistration = ref(false)
+/** CPF sem cadastro — convite para cadastro médico. */
+const suggestMedicalSignup = ref(false)
 const loginError = ref('')
 const loginLoading = ref(false)
 const appFeedback = ref('')
@@ -883,84 +872,80 @@ function applySavedAlertsPreference(doctorId: string) {
   alertsEnabled.value = saved
 }
 
+function statusLabelPt(status: string): string {
+  const map: Record<string, string> = {
+    REGISTERED: 'cadastro incompleto',
+    ACTIVE: 'ativo',
+    ENROLLED: 'cadastrado',
+    WITH_PENDENCY: 'com pendências',
+    INACTIVE: 'inativo',
+    RESCISSION: 'rescisão',
+    PENDING: 'pendente',
+    SUSPENDED: 'suspenso',
+  }
+  return map[status.toUpperCase()] ?? status
+}
+
+type RegistrationCheck = Awaited<ReturnType<typeof apiIsCpfRegistered>>
+
+function applyRegistrationGate(reg: RegistrationCheck): boolean {
+  suggestMedicalSignup.value = false
+  if (!reg.registered) {
+    needsRegistration.value = false
+    suggestMedicalSignup.value = true
+    loginError.value =
+      'Não encontramos cadastro para este CPF. Se ainda não concluiu o cadastro médico, use o link abaixo.'
+    return false
+  }
+  const st = (reg.status ?? '').toUpperCase()
+  if (st === 'REGISTERED') {
+    needsRegistration.value = true
+    suggestMedicalSignup.value = true
+    loginError.value =
+      'Seu cadastro foi iniciado, mas ainda falta concluir a documentação. Use o link abaixo para completar.'
+    return false
+  }
+  if (!reg.active) {
+    needsRegistration.value = false
+    loginError.value = `Seu cadastro não está liberado para acesso (${statusLabelPt(st)}). Entre em contato com a administração.`
+    return false
+  }
+  needsRegistration.value = false
+  return true
+}
+
+const instructionsEmailSentMessage =
+  'Enviamos as instruções com o link de redefinição para o e-mail associado a este CPF. Por segurança, partes do endereço não são exibidas aqui. Verifique a caixa de entrada e o spam.'
+
 async function handleLogin() {
   loginError.value = ''
   appFeedback.value = ''
+  needsRegistration.value = false
+  suggestMedicalSignup.value = false
   const cpf = loginCpf.value.replace(/\D/g, '')
   if (cpf.length !== 11) {
     loginError.value = 'Digite um CPF válido com 11 dígitos.'
     return
   }
+  if (!loginPassword.value.trim()) {
+    loginError.value = 'Digite sua senha ou use "Esqueci minha senha" se ainda não definiu uma.'
+    return
+  }
 
-  // 1) Tenta CPF mock primeiro (offline/dev)
   const mockDoctor = doctors.find((item) => item.cpf === cpf)
   if (mockDoctor) {
     loginWith(mockDoctor)
     return
   }
 
-  // 2) Verifica na API real e decide o fluxo:
-  // cadastro | primeiro acesso com token | login normal por senha
   loginLoading.value = true
   try {
-    const { registered, name, id } = await apiIsCpfRegistered(cpf)
-    if (!registered) {
-      needsRegistration.value = false
-      loginPendingDoctor.value = null
-      loginStep.value = 'cpf'
-      loginError.value = 'Usuário não cadastrado. Entre em contato com a administração.'
+    const reg = await apiIsCpfRegistered(cpf)
+    if (!applyRegistrationGate(reg)) {
       return
     }
-    // TEMP (teste local): desconsidera bloqueio por status para permitir fluxo de senha/redefinição.
-    // if (!effectiveActive && effectiveStatus === 'REGISTERED') {
-    //   needsRegistration.value = true
-    //   loginPendingDoctor.value = null
-    //   loginStep.value = 'cpf'
-    //   loginError.value = 'Seu cadastro foi criado, mas ainda falta concluir. Clique em "Ir para cadastro médico".'
-    //   return
-    // }
-    // if (!effectiveActive) {
-    //   needsRegistration.value = false
-    //   loginPendingDoctor.value = null
-    //   loginStep.value = 'cpf'
-    //   loginError.value = `Seu cadastro não está ativo (${statusLabelPt(effectiveStatus)}). Entre em contato com a administração.`
-    //   return
-    // }
-    needsRegistration.value = false
-    loginPendingDoctor.value = { id, name, cpf }
-    const firstLogin = await apiCheckFirstLogin(cpf)
-    if (firstLogin.has_password) {
-      loginStep.value = 'password'
-      appFeedback.value = 'CPF confirmado. Informe sua senha para entrar.'
-      return
-    }
-    await apiSendFirstLoginToken(cpf)
-    loginStep.value = 'firstAccess'
-    appFeedback.value = 'Enviamos um token de 6 dígitos para o e-mail cadastrado.'
-  } catch {
-    loginError.value = 'Erro ao verificar CPF. Verifique sua conexão.'
-  } finally {
-    loginLoading.value = false
-  }
-}
-
-async function handlePasswordLogin() {
-  loginError.value = ''
-  appFeedback.value = ''
-  const pending = loginPendingDoctor.value
-  if (!pending?.cpf) {
-    loginError.value = 'Informe o CPF novamente.'
-    loginStep.value = 'cpf'
-    return
-  }
-  if (!loginPassword.value.trim()) {
-    loginError.value = 'Digite sua senha.'
-    return
-  }
-  loginLoading.value = true
-  try {
-    const { user } = await apiLogin(pending.cpf, loginPassword.value)
-    completeApiLogin(pending, user)
+    const { user } = await apiLogin(cpf, loginPassword.value)
+    completeApiLogin({ id: reg.id, name: reg.name, cpf }, user)
   } catch {
     loginError.value = 'Senha inválida ou acesso indisponível no momento.'
   } finally {
@@ -968,114 +953,35 @@ async function handlePasswordLogin() {
   }
 }
 
-async function handleFirstAccessReset() {
+async function handleForgotPassword() {
   loginError.value = ''
   appFeedback.value = ''
-  const pending = loginPendingDoctor.value
-  if (!pending?.cpf) {
-    loginError.value = 'Informe o CPF novamente.'
-    loginStep.value = 'cpf'
+  needsRegistration.value = false
+  suggestMedicalSignup.value = false
+  const cpf = loginCpf.value.replace(/\D/g, '')
+  if (cpf.length !== 11) {
+    loginError.value = 'Digite um CPF válido com 11 dígitos antes de solicitar a redefinição.'
     return
   }
-  const token = firstAccessToken.value.replace(/\D/g, '')
-  if (token.length !== 6) {
-    loginError.value = 'Digite o token de 6 dígitos recebido no e-mail.'
-    return
-  }
-  if (firstAccessPassword.value.length < 6) {
-    loginError.value = 'A nova senha deve ter pelo menos 6 caracteres.'
-    return
-  }
-  if (firstAccessPassword.value !== firstAccessPasswordConfirm.value) {
-    loginError.value = 'A confirmação de senha não confere.'
-    return
-  }
-  loginLoading.value = true
-  try {
-    await apiResetFirstLoginPassword(token, firstAccessPassword.value)
-    const { user } = await apiLogin(pending.cpf, firstAccessPassword.value)
-    completeApiLogin(pending, user)
-  } catch (error) {
-    const detail = apiErrorDetail(error)
-    loginError.value = detail || 'Token inválido/expirado ou não foi possível definir a senha.'
-  } finally {
-    loginLoading.value = false
-  }
-}
 
-async function resendFirstAccessToken() {
-  loginError.value = ''
-  appFeedback.value = ''
-  const cpf = loginPendingDoctor.value?.cpf
-  if (!cpf) {
-    loginStep.value = 'cpf'
-    loginError.value = 'Informe o CPF novamente.'
+  const mockDoctor = doctors.find((item) => item.cpf === cpf)
+  if (mockDoctor) {
+    appFeedback.value =
+      'Modo demonstração: não há envio de e-mail para CPFs de teste. Use um CPF cadastrado na API para testar o link no e-mail.'
     return
   }
-  loginLoading.value = true
-  try {
-    await apiSendFirstLoginToken(cpf)
-    appFeedback.value = 'Token reenviado para o e-mail cadastrado.'
-  } catch (error) {
-    const detail = apiErrorDetail(error)
-    loginError.value = detail || 'Não foi possível reenviar o token agora.'
-  } finally {
-    loginLoading.value = false
-  }
-}
 
-async function startPasswordReset() {
-  loginError.value = ''
-  appFeedback.value = ''
-  const cpf = loginPendingDoctor.value?.cpf
-  if (!cpf) {
-    loginStep.value = 'cpf'
-    loginError.value = 'Informe o CPF novamente.'
-    return
-  }
   loginLoading.value = true
   try {
+    const reg = await apiIsCpfRegistered(cpf)
+    if (!applyRegistrationGate(reg)) {
+      return
+    }
     await apiForgotPassword(cpf)
-    loginStep.value = 'passwordReset'
-    appFeedback.value = 'Enviamos um token de redefinição para o e-mail cadastrado.'
+    appFeedback.value = instructionsEmailSentMessage
   } catch (error) {
     const detail = apiErrorDetail(error)
-    loginError.value = detail || 'Não foi possível iniciar a redefinição de senha agora.'
-  } finally {
-    loginLoading.value = false
-  }
-}
-
-async function handlePasswordReset() {
-  loginError.value = ''
-  appFeedback.value = ''
-  const pending = loginPendingDoctor.value
-  if (!pending?.cpf) {
-    loginStep.value = 'cpf'
-    loginError.value = 'Informe o CPF novamente.'
-    return
-  }
-  const token = resetToken.value.replace(/\D/g, '')
-  if (token.length !== 6) {
-    loginError.value = 'Digite o token de 6 dígitos recebido no e-mail.'
-    return
-  }
-  if (resetPassword.value.length < 6) {
-    loginError.value = 'A nova senha deve ter pelo menos 6 caracteres.'
-    return
-  }
-  if (resetPassword.value !== resetPasswordConfirm.value) {
-    loginError.value = 'A confirmação de senha não confere.'
-    return
-  }
-  loginLoading.value = true
-  try {
-    await apiResetPassword(token, resetPassword.value)
-    const { user } = await apiLogin(pending.cpf, resetPassword.value)
-    completeApiLogin(pending, user)
-  } catch (error) {
-    const detail = apiErrorDetail(error)
-    loginError.value = detail || 'Token inválido/expirado ou não foi possível redefinir a senha.'
+    loginError.value = detail || 'Não foi possível enviar o e-mail agora. Tente de novo em instantes.'
   } finally {
     loginLoading.value = false
   }
@@ -1110,21 +1016,6 @@ function openMedicalSignup() {
   window.open(medicalSignupUrl, '_blank', 'noopener,noreferrer')
 }
 
-function backToCpfStep() {
-  loginStep.value = 'cpf'
-  loginPassword.value = ''
-  firstAccessToken.value = ''
-  firstAccessPassword.value = ''
-  firstAccessPasswordConfirm.value = ''
-  resetToken.value = ''
-  resetPassword.value = ''
-  resetPasswordConfirm.value = ''
-  loginPendingDoctor.value = null
-  needsRegistration.value = false
-  loginError.value = ''
-  appFeedback.value = ''
-}
-
 function loginWith(doctor: Doctor) {
   currentDoctor.value = doctor
   localStorage.setItem(SESSION_KEY, doctor.id)
@@ -1137,15 +1028,8 @@ function loginWith(doctor: Doctor) {
   activeTab.value = 'myShifts'
   loginCpf.value = ''
   loginPassword.value = ''
-  firstAccessToken.value = ''
-  firstAccessPassword.value = ''
-  firstAccessPasswordConfirm.value = ''
-  resetToken.value = ''
-  resetPassword.value = ''
-  resetPasswordConfirm.value = ''
-  loginPendingDoctor.value = null
   needsRegistration.value = false
-  loginStep.value = 'cpf'
+  suggestMedicalSignup.value = false
   enqueueSyncAction('login', { doctorId: doctor.id, cpf: doctor.cpf })
   fetchApiShifts().catch(() => {})
 }
@@ -1162,15 +1046,8 @@ function handleLogout() {
   localStorage.removeItem(DOCTOR_KEY)
   loginCpf.value = ''
   loginPassword.value = ''
-  firstAccessToken.value = ''
-  firstAccessPassword.value = ''
-  firstAccessPasswordConfirm.value = ''
-  resetToken.value = ''
-  resetPassword.value = ''
-  resetPasswordConfirm.value = ''
-  loginPendingDoctor.value = null
   needsRegistration.value = false
-  loginStep.value = 'cpf'
+  suggestMedicalSignup.value = false
   clearApiSession()
   closeShiftModal()
   closeReviewModal()
@@ -1803,138 +1680,50 @@ function buildMonthGrid(referenceMonth: Date) {
           </span>
         </button>
       </div>
-      <h1>Check-in Lite</h1>
-      <p class="description" v-if="loginStep === 'cpf'">Entre com seu CPF para acessar seus plantões.</p>
-      <p class="description" v-else-if="loginStep === 'password'">CPF confirmado. Informe sua senha.</p>
-      <p class="description" v-else-if="loginStep === 'firstAccess'">Primeiro acesso: informe token e crie sua senha.</p>
-      <p class="description" v-else>Redefinição de senha: informe token e nova senha.</p>
+      <h1>Portal do profissional</h1>
+      <p class="description">
+        Acesso dos profissionais: veja seus plantões, faça check-in nos hospitais e receba avisos — tudo em um só lugar.
+      </p>
       <p v-if="installFeedback" class="helper">{{ installFeedback }}</p>
       <p v-if="appFeedback" class="helper">{{ appFeedback }}</p>
 
-      <template v-if="loginStep === 'cpf'">
-        <label for="cpf-input" class="label">CPF do médico</label>
-        <input
-          id="cpf-input"
-          :value="maskedCpf"
-          class="input"
-          inputmode="numeric"
-          maxlength="14"
-          placeholder="000.000.000-00"
-          autocomplete="username"
-          @input="loginCpf = ($event.target as HTMLInputElement).value"
-          @keyup.enter="handleLogin"
-        />
-        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handleLogin">
-          {{ loginLoading ? 'Validando...' : 'Continuar' }}
-        </button>
-        <button
-          v-if="needsRegistration"
-          type="button"
-          class="btn secondary big"
-          :disabled="loginLoading"
-          @click="openMedicalSignup"
-        >
-          Ir para cadastro médico
-        </button>
-      </template>
-
-      <template v-else-if="loginStep === 'password'">
-        <label for="password-input" class="label">Senha</label>
-        <input
-          id="password-input"
-          v-model="loginPassword"
-          class="input"
-          type="password"
-          placeholder="Digite sua senha"
-          autocomplete="current-password"
-          @keyup.enter="handlePasswordLogin"
-        />
-        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handlePasswordLogin">
-          {{ loginLoading ? 'Entrando...' : 'Entrar' }}
-        </button>
-        <button type="button" class="btn secondary big" :disabled="loginLoading" @click="startPasswordReset">
-          Esqueci minha senha
-        </button>
-        <button type="button" class="btn ghost big" :disabled="loginLoading" @click="backToCpfStep">Voltar</button>
-      </template>
-
-      <template v-else-if="loginStep === 'firstAccess'">
-        <label for="token-input" class="label">Token (6 dígitos)</label>
-        <input
-          id="token-input"
-          v-model="firstAccessToken"
-          class="input"
-          inputmode="numeric"
-          maxlength="6"
-          placeholder="000000"
-          autocomplete="one-time-code"
-        />
-        <label for="new-password-input" class="label">Nova senha</label>
-        <input
-          id="new-password-input"
-          v-model="firstAccessPassword"
-          class="input"
-          type="password"
-          placeholder="Mínimo de 6 caracteres"
-          autocomplete="new-password"
-        />
-        <label for="confirm-password-input" class="label">Confirmar senha</label>
-        <input
-          id="confirm-password-input"
-          v-model="firstAccessPasswordConfirm"
-          class="input"
-          type="password"
-          placeholder="Repita a senha"
-          autocomplete="new-password"
-          @keyup.enter="handleFirstAccessReset"
-        />
-        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handleFirstAccessReset">
-          {{ loginLoading ? 'Confirmando...' : 'Definir senha e entrar' }}
-        </button>
-        <button type="button" class="btn secondary big" :disabled="loginLoading" @click="resendFirstAccessToken">
-          Reenviar token
-        </button>
-        <button type="button" class="btn ghost big" :disabled="loginLoading" @click="backToCpfStep">Voltar</button>
-      </template>
-
-      <template v-else>
-        <label for="reset-token-input" class="label">Token (6 dígitos)</label>
-        <input
-          id="reset-token-input"
-          v-model="resetToken"
-          class="input"
-          inputmode="numeric"
-          maxlength="6"
-          placeholder="000000"
-          autocomplete="one-time-code"
-        />
-        <label for="reset-password-input" class="label">Nova senha</label>
-        <input
-          id="reset-password-input"
-          v-model="resetPassword"
-          class="input"
-          type="password"
-          placeholder="Mínimo de 6 caracteres"
-          autocomplete="new-password"
-        />
-        <label for="reset-password-confirm-input" class="label">Confirmar senha</label>
-        <input
-          id="reset-password-confirm-input"
-          v-model="resetPasswordConfirm"
-          class="input"
-          type="password"
-          placeholder="Repita a senha"
-          autocomplete="new-password"
-          @keyup.enter="handlePasswordReset"
-        />
-        <button type="button" class="btn primary big" :disabled="loginLoading" @click="handlePasswordReset">
-          {{ loginLoading ? 'Confirmando...' : 'Redefinir senha e entrar' }}
-        </button>
-        <button type="button" class="btn secondary big" :disabled="loginLoading" @click="startPasswordReset">
-          Reenviar token
-        </button>
-        <button type="button" class="btn ghost big" :disabled="loginLoading" @click="backToCpfStep">Voltar</button>
-      </template>
+      <label for="cpf-input" class="label">CPF do médico</label>
+      <input
+        id="cpf-input"
+        :value="maskedCpf"
+        class="input"
+        inputmode="numeric"
+        maxlength="14"
+        placeholder="000.000.000-00"
+        autocomplete="username"
+        @input="loginCpf = ($event.target as HTMLInputElement).value"
+        @keyup.enter="handleLogin"
+      />
+      <label for="password-input" class="label">Senha</label>
+      <input
+        id="password-input"
+        v-model="loginPassword"
+        class="input"
+        type="password"
+        placeholder="Sua senha"
+        autocomplete="current-password"
+        @keyup.enter="handleLogin"
+      />
+      <button type="button" class="btn primary big" :disabled="loginLoading" @click="handleLogin">
+        {{ loginLoading ? 'Entrando...' : 'Entrar' }}
+      </button>
+      <button type="button" class="btn secondary big" :disabled="loginLoading" @click="handleForgotPassword">
+        Esqueci minha senha
+      </button>
+      <button
+        v-if="needsRegistration || suggestMedicalSignup"
+        type="button"
+        class="btn secondary big"
+        :disabled="loginLoading"
+        @click="openMedicalSignup"
+      >
+        Ir para cadastro médico
+      </button>
 
       <p v-if="loginError" class="helper error">{{ loginError }}</p>
     </section>

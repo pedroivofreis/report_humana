@@ -170,20 +170,36 @@ export async function apiIsCpfRegistered(cpf: string): Promise<{
       registered?: boolean
       name?: string
       id?: string
+      is_active?: boolean
     } | null>(`/users/is-registered/${cpf}`)
 
     if (!result) return { registered: false, active: false }
 
+    const resolveAccountActive = (status: string, isActive: boolean | undefined): boolean => {
+      if (typeof isActive === 'boolean') {
+        return isActive
+      }
+      const st = status.toUpperCase()
+      // Sem is_active na API antiga: alinhar ao domínio (ENROLLED = profissional apto, não só ACTIVE).
+      return st === 'ACTIVE' || st === 'ENROLLED' || st === 'WITH_PENDENCY'
+    }
+
     if (result.user_id) {
       const name = await apiGetUserName(result.user_id)
       const status = String(result.status ?? '').toUpperCase()
-      return { registered: true, active: status === 'ACTIVE', status, id: result.user_id, name }
+      return {
+        registered: true,
+        active: resolveAccountActive(status, result.is_active),
+        status,
+        id: result.user_id,
+        name,
+      }
     }
     const registered = result.is_registered ?? result.registered ?? false
     const status = String(result.status ?? '').toUpperCase()
     return {
       registered: Boolean(registered),
-      active: status === 'ACTIVE',
+      active: resolveAccountActive(status, result.is_active),
       status,
       name: result.name,
       id: result.id,

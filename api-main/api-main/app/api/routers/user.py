@@ -122,6 +122,7 @@ async def check_user_registered(
     return UserRegisterStatusResponse(
         user_id=user.id,
         status=user.status,
+        is_active=user.is_active,
     )
 
 

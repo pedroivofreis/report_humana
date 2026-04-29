@@ -66,6 +66,7 @@ class UserRegisterStatusResponse(pydantic.BaseModel):
 
     user_id: UUID
     status: UserStatus
+    is_active: bool
 
 
 class UserResponseById(UserResponse):

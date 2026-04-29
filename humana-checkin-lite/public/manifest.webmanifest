@@ -1,7 +1,7 @@
 {
-  "name": "Humana Check-in Lite",
-  "short_name": "Check-in Lite",
-  "description": "Frontend simplificado para fluxo de check-in Humana.",
+  "name": "Humana — Portal do profissional",
+  "short_name": "Portal Humana",
+  "description": "Plantões, check-in nos hospitais e avisos — tudo em um só lugar.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
